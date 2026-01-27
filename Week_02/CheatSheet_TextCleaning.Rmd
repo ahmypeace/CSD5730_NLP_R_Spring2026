@@ -1,0 +1,42 @@
+---
+title: 'Cheatsheet: Text cleaning and Tokenization'
+output: 
+  html_document:
+    css: style.css
+date: "2026-01-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Two cheat sheets
+
+### Cheat Sheet 1: Splitting + Counting Tokens (5 things)
+
+1. `strsplit(text, " ", fixed = TRUE)` splits on exactly one space.
+2. `unlist()` turns the list output into a vector.
+3. Remove empties with `tokens[tokens != ""]` if multiple spaces exist.
+4. Count tokens with `length(tokens)`.
+5. Count unique tokens with `length(unique(tokens))`.
+6. 
+
+**Notes:**
+
+- Reading line-by-line prevents crashes and preserves text structure before cleaning
+- Tokenization is the foundation of all text analysis. Cleaning empties prevents inflated counts.
+
+
+### Cheat Sheet 2: Cleaning Basics
+
+1. `tolower()` normalizes case.
+2. `gsub("[\r\n\t]", " ", x)` converts newlines/tabs to spaces.
+3. `gsub("[^a-z0-9' ]+", " ", x)` removes everything except letters, numbers, apostrophes, and spaces.
+4. `gsub(" +", " ", x)` collapses multiple spaces into one.
+5. `trimws()` removes leading/trailing spaces.
+
+**Notes:**
+
+- one word per row format is required for frequency analysis, TTR, and most NLP pipelines.
+- TTR measures lexical diversity and is sensitive to cleaning decisions.
+
