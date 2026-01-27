@@ -1,7 +1,0 @@
-"0","data.frame(
-  measure = c(""tokens_before"", ""tokens_after""),
-  value   = c(length(tokens_before_nonempty), length(tokens_after_nonempty))
-)
-"
-"2","Error: object 'tokens_before_nonempty' not found
-"

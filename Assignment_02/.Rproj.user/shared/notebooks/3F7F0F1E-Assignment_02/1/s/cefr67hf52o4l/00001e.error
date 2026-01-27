@@ -1,1 +1,0 @@
-{"frames":[{"func":"data.frame(measure = c(\"tokens_before\", \"tokens_after\"), value = c(length(tokens_before_nonempty), \n    length(tokens_after_nonempty)))","file":"","line_number":0,"end_line_number":0,"character_number":0,"end_character_number":0}],"message":"Error: object 'tokens_before_nonempty' not found\n"}
