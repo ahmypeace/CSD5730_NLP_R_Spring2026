@@ -1,0 +1,135 @@
+---
+title: "Assignment_02: Text Cleaning"
+date: "2026-01-23"
+output: 
+  html_document:
+    css: style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Now for your challenge!
+Import 'sticks_messy.txt' from my data folder. Report how many tokens are in the file **before** and **after** cleaning (using `" "` as the separator).
+Also: token split + count, TTR, 3-words-per-row,  cleanings steps, then chain them together.
+
+
+```{r}
+## Import the file
+#setting the file path
+path <- file.path("data/sticks_messy.txt")
+
+#read the file line by line
+text_lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
+
+#combine all lines to one long string 
+raw_text <- paste(text_lines, collapse = " ")
+
+#show the first 300 character so  know that this is working
+substr(raw_text, 1, 300)
+
+
+## Step 2: Count tokens before cleaning
+
+# Split the text with " " wherever there is a space
+tokens_before <- strsplit(raw_text, " ", fixed = TRUE)
+
+# Convert list to vector
+tokens_before <- unlist(tokens_before)
+
+# Remove empty tokens
+tokens_before <- tokens_before[tokens_before != ""]
+
+# Count tokens
+tokens_before_count <- length(tokens_before)
+
+print (tokens_before_count)
+
+
+# Step 3: cleaning function (chainable)
+clean_text <- function(x) {
+  x |>
+    tolower() |>
+    gsub("[\r\n\t]", " ", x = _) |>          # turn newlines/tabs into spaces
+    gsub("[^a-z0-9' ]+", " ", x = _) |>     # remove punctuation except apostrophes and spaces
+    gsub(" +", " ", x = _) |>               # collapse multiple spaces
+    trimws()
+}
+
+cleaned_text <- clean_text(raw_text)
+
+substr(cleaned_text, 1, 300)
+
+
+#Step 4: Token counts after cleaning (separator is " ")
+
+tokens_after <- unlist(strsplit(cleaned_text, " ", fixed = TRUE))
+tokens_after_count <- tokens_after[tokens_after != ""]
+
+length(tokens_after_count)
+
+
+#Step 5: summary table: before vs after
+data.frame(
+  measure = c("tokens_before", "tokens_after"),
+  value   = c(length(tokens_before_count), length(tokens_after_count))
+)
+
+# Step 6: Type-Token Ratio (TTR)
+# TTR = number of unique tokens / total tokens
+
+ttr_before <- length(unique(tokens_before)) / length(tokens_before)
+ttr_after  <- length(unique(tokens_after))  / length(tokens_after)
+
+results <- data.frame(
+  version = c("before", "after"),
+  tokens = c(length(tokens_before), length(tokens_after)),
+  types  = c(length(unique(tokens_before)), length(unique(tokens_after))),
+  TTR    = c(ttr_before, ttr_after)
+)
+
+print(results)
+
+
+knitr::kable(results, caption = "Token Count and TTR")
+
+
+# Step 7: Show three words per row (After Cleaning)
+
+total_tokens <- length(tokens_after)
+
+padding_needed <- (3 - (total_tokens %% 3)) %% 3
+tokens_padded <- c(tokens_after, rep(NA, padding_needed))
+
+three_word_matrix <- matrix(tokens_padded, ncol = 3, byrow = TRUE)
+
+# Convert matrix to a data frame so it prints nicely
+three_word_table <- as.data.frame(three_word_matrix)
+colnames(three_word_table) <- c("Word 1", "Word 2", "Word 3")
+
+# Show first 10 rows as a table in the knitted output
+knitr::kable(
+  head(three_word_table, 10),
+  caption = "Three Words Per Row (After Cleaning)"
+)
+
+
+```
+## Two cheat sheets
+
+### Cheat Sheet 1: Splitting + Counting Tokens (5 things)
+
+1. `strsplit(text, " ", fixed = TRUE)` splits on exactly one space.
+2. `unlist()` turns the list output into a vector.
+3. Remove empties with `tokens[tokens != ""]` if multiple spaces exist.
+4. Count tokens with `length(tokens)`.
+5. Count unique tokens with `length(unique(tokens))`.
+
+### Cheat Sheet 2: Cleaning Basics
+
+1. `tolower()` normalizes case.
+2. `gsub("[\r\n\t]", " ", x)` converts newlines/tabs to spaces.
+3. `gsub("[^a-z0-9' ]+", " ", x)` removes everything except letters, numbers, apostrophes, and spaces.
+4. `gsub(" +", " ", x)` collapses multiple spaces into one.
+5. `trimws()` removes leading/trailing spaces.
