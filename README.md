@@ -1,64 +1,91 @@
-CSD5730 – NLP with R (Spring 2026)
+# CSD5730 – Natural Language Processing with R (Spring 2026)
 
-This repository contains all assignments, exercises, and templates for the course CSD5730: Natural Language Processing with R (Spring 2026).
+This repository contains **all assignments, exercises, templates, and outputs** for the course  
+**CSD5730: Natural Language Processing with R (Spring 2026)**.
 
-The repository is organized by week, with each folder containing the materials, code, and outputs for that week’s work.
+All work for the class is organized by week to keep the project clean, reproducible, and easy to review.
 
-Repository Structure
+---
+
+## Repository Structure
+
 CSD5730_NLP_R_Spring2026/
 │
 ├── Week_01/
-│   ├── assignments/
-│   ├── notebooks/
-│   └── StylesTemplates/
+│ ├── assignments/
+│ ├── notebooks/
+│ ├── outputs/
+│ ├── Images/
+│ └── StylesTemplates/
 │
 ├── Week_02/
-│   ├── assignments/
-│   ├── notebooks/
-│   └── outputs/
+│ ├── assignments/
+│ ├── notebooks/
+│ ├── outputs/
+│ └── Images/
 │
 ├── Week_03/
-│   └── ...
+│ └── ...
 │
-└── README.md
+├── shared/
+│ ├── StylesTemplates/
+│ ├── data/
+│ └── utils/
+│
+├── README.md
 
-What This Repository Contains
 
-Weekly assignments and exercises
+---
 
-R scripts for NLP analysis
+## What This Repository Contains
 
-Notebooks (Quarto / R Markdown)
+- Weekly assignments and problem sets
+- R Markdown / Quarto notebooks
+- Rendered HTML outputs
+- Figures and images used in assignments
+- Reusable style templates and utilities
+- Shared resources across weeks
 
-Style templates and formatting files
+---
 
-Outputs, figures, and results
+## How to Use This Repository
 
-Tools & Languages
+1. Navigate to the folder for the relevant week
+2. Open the `.Rproj` or `.Rmd` file in RStudio or Positron
+3. Run or knit the notebook
+4. Outputs are saved in the `outputs/` folder for that week
 
-R (tidyverse, tidytext, quanteda, text2vec, etc.)
+---
 
-Quarto / R Markdown
+## Tools & Languages
 
-GitHub for version control and submission tracking
+- R
+- tidyverse
+- tidytext
+- quanteda
+- text2vec
+- stringr
+- Quarto / R Markdown
+- GitHub (version control)
 
-How to Use This Repository
+---
 
-Each week’s work is stored in its corresponding folder
+## Version Control
 
-Open notebooks in RStudio or Positron
+This repository is updated weekly as assignments are completed.  
+Each commit reflects a meaningful step in the learning process.
 
-Run scripts from the assignments or notebooks folders
+---
 
-Outputs are saved in outputs/ or figures/ when applicable
+## Academic Use
 
-Notes
+This repository is for coursework and learning purposes.  
+Code may evolve as concepts are refined throughout the semester.
 
-This repository is for academic coursework and learning purposes.
-Files may be updated weekly as new assignments are completed.
+---
 
-Author
+## Author
 
-Amaka Peace Onebunne
-PhD Student, Media and Communication
+**Amaka Peace Onebunne**  
+PhD Student, Media and Communication  
 Temple University
