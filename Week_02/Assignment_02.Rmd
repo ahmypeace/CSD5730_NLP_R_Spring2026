@@ -10,54 +10,27 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-## _Now for your challenge!_
-### Task Overview
-
-In this assignment, you will work with a raw text file to practice basic text cleaning and tokenization in R. Specifically, you will:
-
-- Read sticks_messy.txt into R from the data/ folder
-
-- Create a homemade text cleaning function using at least three chained procedures
-
-- Clean the raw text using your custom function
-
-- Split the cleaned text into a one-word-per-row format
-
-- Report the total number of tokens before and after cleaning (using " " as the separator)
-
-- Compute the Type-Token Ratio (TTR) for both versions of the text
-
-### Additional Requirements
-
-Your workflow should include:
-
-- Token splitting and counting steps
-
-- Clear documentation of each cleaning step
-
-- Chaining of cleaning procedures into a single function
-
-- (Optional, for readability) A display of tokens in a three-words-per-row format
-
-All code must be annotated, and the final submission should be a knitted HTML document, styled using your own CSS.
+## Now for your challenge!
+Import 'sticks_messy.txt' from my data folder. Report how many tokens are in the file **before** and **after** cleaning (using `" "` as the separator).
+Also: token split + count, TTR, 3-words-per-row,  cleanings steps, then chain them together.
 
 
 ```{r}
 ## Import the file
-# setting the file path
+#setting the file path
 path <- file.path("data/sticks_messy.txt")
 
-# read the file line by line
+#read the file line by line
 text_lines <- readLines(path, warn = FALSE, encoding = "UTF-8")
 
-# combine all lines to one long string 
+#combine all lines to one long string 
 raw_text <- paste(text_lines, collapse = " ")
 
-# show the first 300 character so  know that this is working
+#show the first 300 character so  know that this is working
 substr(raw_text, 1, 300)
 
 
-## Step 2: Tokenize and count words before cleaning
+## Step 2: Count tokens before cleaning
 
 # Split the text with " " wherever there is a space
 tokens_before <- strsplit(raw_text, " ", fixed = TRUE)
@@ -65,102 +38,64 @@ tokens_before <- strsplit(raw_text, " ", fixed = TRUE)
 # Convert list to vector
 tokens_before <- unlist(tokens_before)
 
-# Remove empty tokens  (caused by multiple spaces to be safe)
+# Remove empty tokens
 tokens_before <- tokens_before[tokens_before != ""]
 
-# Count tokens: how many words are in the story (before cleaning)
-numb_tokens_before <- length(tokens_before)
+# Count tokens
+tokens_before_count <- length(tokens_before)
 
-print (numb_tokens_before)
+print (tokens_before_count)
 
 
-## Step 3: cleaning function (3+ chained procedures)
-# Chained procedures included:
-# 1) lowercase
-# 2) replace tabs/newlines with spaces
-# 3) remove punctuation (keep letters, numbers, apostrophes, spaces)
-# 4) collapse multiple spaces
-# 5) trim leading/trailing space
-
-clean_text <- function(clean) {
-  clean |>
+# Step 3: cleaning function (chainable)
+clean_text <- function(x) {
+  x |>
     tolower() |>
-    gsub("[\r\n\t]", " ", x = _) |>  # turn line breaks/newlines/tabs into spaces
-    gsub("[^a-z0-9' ]+", " ", x = _) |> # remove punctuation except apostrophes and spaces
-    gsub(" +", " ", x = _) |>          # collapse multiple spaces
-    trimws()                          #remove leading/trailing whitespace
+    gsub("[\r\n\t]", " ", x = _) |>          # turn newlines/tabs into spaces
+    gsub("[^a-z0-9' ]+", " ", x = _) |>     # remove punctuation except apostrophes and spaces
+    gsub(" +", " ", x = _) |>               # collapse multiple spaces
+    trimws()
 }
 
-
-# Cleaning text using the above made function
-
 cleaned_text <- clean_text(raw_text)
-
-
-# Quick check: first 300 characters after cleaning
 
 substr(cleaned_text, 1, 300)
 
 
-
-## Step 4: Token counts: Split into one-word-per-row format (after cleaning, separator is " ")
+#Step 4: Token counts after cleaning (separator is " ")
 
 tokens_after <- unlist(strsplit(cleaned_text, " ", fixed = TRUE))
-tokens_after <- tokens_after[tokens_after != ""] # Remove empty tokens again just to be safe
+tokens_after_count <- tokens_after[tokens_after != ""]
+
+length(tokens_after_count)
 
 
-# One-word-per-row data frame
-one_word_per_row <- data.frame(word = tokens_after, stringsAsFactors = FALSE)
-
-# Show the first 20 rows and becuse I prefer nice tables
-
-knitr::kable(
-  head(one_word_per_row, 20),
-    caption = "One Word Per Row (After Cleaning)"
+#Step 5: summary table: before vs after
+data.frame(
+  measure = c("tokens_before", "tokens_after"),
+  value   = c(length(tokens_before_count), length(tokens_after_count))
 )
 
-
-# count tokens: how many words are in the story (AFTER cleaning)
-numb_tokens_after <- length(tokens_after)
-print(numb_tokens_after)
-
-
-## Step 5: summary table: before vs after
-summary_table <-data.frame(
-  measure = c("tokens_before_cleaning", "tokens_after_cleaning"),
-  value   = c(numb_tokens_before, numb_tokens_after)
-)
-
-knitr::kable(summary_table, caption = "Token Count Before vs After Cleaning")
-
-
-## Step 6: Type-Token Ratio (TTR) Before vs after
+# Step 6: Type-Token Ratio (TTR)
 # TTR = number of unique tokens / total tokens
 
-# Before cleaning
-numb_tokens_before <- length(tokens_before)
-numb_types_before  <- length(unique(tokens_before))
-ttr_before      <- numb_types_before / numb_tokens_before
+ttr_before <- length(unique(tokens_before)) / length(tokens_before)
+ttr_after  <- length(unique(tokens_after))  / length(tokens_after)
 
-# After cleaning
-numb_tokens_after <- length(tokens_after)
-numb_types_after  <- length(unique(tokens_after))
-ttr_after      <- numb_types_after / numb_tokens_after
-
-# Results table for both before and after
-ttr_results <- data.frame(
-  version = c("before_cleaning", "after_cleaning"),
-  tokens  = c(numb_tokens_before, numb_tokens_after),
-  types   = c(numb_types_before, numb_types_after),
-  TTR     = c(ttr_before, ttr_after)
+results <- data.frame(
+  version = c("before", "after"),
+  tokens = c(length(tokens_before), length(tokens_after)),
+  types  = c(length(unique(tokens_before)), length(unique(tokens_after))),
+  TTR    = c(ttr_before, ttr_after)
 )
 
-print(ttr_results)
-
-knitr::kable(ttr_results, caption = "Type-Token Ratio (TTR) Before vs After Cleaning")
+print(results)
 
 
-## Optional- Step 7: Show three words per row for reability (After Cleaning)
+knitr::kable(results, caption = "Token Count and TTR")
+
+
+# Step 7: Show three words per row (After Cleaning)
 
 total_tokens <- length(tokens_after)
 
@@ -169,8 +104,7 @@ tokens_padded <- c(tokens_after, rep(NA, padding_needed))
 
 three_word_matrix <- matrix(tokens_padded, ncol = 3, byrow = TRUE)
 
-
-# Convert matrix to a data frame so it prints very well
+# Convert matrix to a data frame so it prints nicely
 three_word_table <- as.data.frame(three_word_matrix)
 colnames(three_word_table) <- c("Word 1", "Word 2", "Word 3")
 
