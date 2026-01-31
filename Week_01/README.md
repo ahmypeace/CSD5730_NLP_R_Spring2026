@@ -21,3 +21,12 @@ This assignment demonstrates:
 
 ### Preview
 Download and open `MarkdownTemplate_2025.html` locally to view the styled output.
+
+---
+
+## Author
+
+**Amaka Peace Onebunne**  
+PhD Student, Media and Communication  
+Temple University
+
