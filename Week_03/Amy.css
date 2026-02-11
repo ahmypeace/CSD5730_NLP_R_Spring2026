@@ -1,0 +1,221 @@
+
+/* Whole document: */
+body{
+  font-family: avenir;
+  font-size: 13pt;
+  color: black;
+  background-color: #f2f2f2;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+
+/* Content of the markdown is not main-container but is toc-content */
+.toc-content {
+  margin-left: -15px;
+  padding-left: 0px;
+}
+
+
+
+/* Headers */
+
+h1.title {color: white;
+  font-size: 16pt;
+  background-color:#780707;
+  padding-bottom: .2em;
+  padding-right: .2em;
+  text-align: left;
+  /* max-width: 750px; */
+  /* border-left: 15px solid #6e1717; */
+}
+
+
+h1, .h1, h2, .h2, h3, .h3 {
+  margin-top: 15px;
+  padding-bottom: .25em;
+  padding-left: .5em;
+  padding-top: .25em;
+}
+
+
+h1 {
+  font-size: 15pt;
+  padding-top:.5em;
+  color: 	 white;
+  background-color: #780707;
+}
+
+
+h2 { 
+  font-size: 15pt;
+  padding-top:.5em;
+  color: white;  
+  background-color: #be3d3d;
+}
+
+
+h3 { 
+  font-size: 15pt;
+   color: white;
+   background-color:  #ec8a8a;
+}
+
+h1 {
+  font-size: 15pt;
+  padding-top:.5em;
+  color: 	 white;
+  background-color: #780707;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Code Chunks */
+pre {
+  max-height: 350px;
+  background-color: #ec8a8a;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 350px;
+}
+
+.r code {
+    white-space: pre;
+}
+
+pre code {
+  white-space: pre-wrap;
+}
+
+
+/* LINKS */
+
+/* unvisited link */
+a:link {
+  color: #374AD5;
+  text-decoration: none;
+}
+
+
+/* visited link */
+a:visited {
+  color: #4B0082;
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover { 
+  color: #4B0082;
+  background-color: #E4ECE7;
+  text-decoration: none;
+}
+
+/* TOC */
+
+/*----------LOGO above TOC in empty box---------*/
+#TOC::before {
+  content: "";
+  display: block;
+  top: 0px;
+  height: 175px;
+  width: 150px;
+  margin-top: 20px; /* Adds space below the logo */
+  margin-bottom: 20px; /* Adds space below the logo */
+  background-image: url("../Images/Amy_Logo.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+/*----------Actual TOC Container---------*/
+div#TOC {
+  font-size: 10pt;
+  border: white;
+  background: white;
+  padding-right: 2px;  /* Fixed typo (was missing 'px') */
+  padding-left: 2px;
+  width: 15%;  /* Reduces width by 10% (from original 100%) */
+  max-width: 15%; /* Ensures it doesn't exceed 90% of parent */
+}
+
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list-group-item.active:hover {
+    z-index: 1;
+    color: #6e1717;
+    background-color: #CFCFCF;
+    border-color: #CFCFCF;
+}
+
+.list-group-item.active:hover {
+    z-index: 2;
+    color: #6e1717;
+    background-color: #CFCFCF;
+    border-color: #CFCFCF;
+}
+
+
+.list-group-item.active {
+    z-index: 1;
+    color: #6e1717;
+    text-decoration: none;
+    background-color: #CFCFCF;
+    border-color: #CFCFCF;
+}
+
+.list-group-item.active {
+    z-index: 2;
+    color: #6e1717;
+    text-decoration: none;
+    background-color: #E4ECE7;
+    border-color: #E4ECE7;
+    }
+
+
+
+
+.page-logo {
+  position: absolute;
+  top: 30px;  /* adjust up/down */
+  right: 15px;
+  z-index: 10;
+}
+
+.page-logo img {
+  height: 130px;   /* controls image size */
+  width: auto;
+  /* opacity: 0.95;  soften slightly */
+  padding: 10px;
+  border-radius: 6px;
+}
+
+caption {
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 10px;
+}
+
+
+/* -------- FIX GREEN ACTIVE TOC COLOR -------- */
+
+#TOC .list-group-item.active,
+#TOC .list-group-item.active:focus,
+#TOC .list-group-item.active:hover {
+    background-color: #780707 !important;   /* your red */
+    border-color: #780707 !important;
+    color: white !important;
+}
+
+/* Remove green hover color */
+#TOC .list-group-item:hover {
+    background-color: #ec8a8a !important;  /* lighter red */
+    color: white !important;
+}
