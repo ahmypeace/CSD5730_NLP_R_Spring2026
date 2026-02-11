@@ -1,0 +1,202 @@
+---
+title: "Assignment 3 - Cleaning Genie"
+author: "Amaka Peace Onebunne"
+date: "`r format(Sys.Date(), '%B %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 1
+    theme: cosmo
+    css: "Styles/Amy.css"
+---
+ 
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 5, fig.align = "left",
+  fig.path = "Figs/", cache.path = "Cache/",
+  eval = TRUE, echo = TRUE,
+  message = FALSE, warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(stringr)
+
+
+jamie.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", full_width = TRUE, html_font = "Helvetica", font_size = 12) |>
+    row_spec(0, color = "white", background = "#5b705f", font_size = 12) |>
+    scroll_box(width = "700px", height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+
+## Basic Cleaning Workflow (Regex-Based)
+
+###  Normalize whitespace
+
+```{r, eval=FALSE}
+text <- gsub("[\r\n\t]+", " ", text)
+
+```
+
+Replaces:
+
+* new lines `\n`
+* carriage returns `\r`
+* tabs `\t`
+
+---
+
+### Lowercase everything
+
+```{r, eval=FALSE}
+text <- tolower(text)
+```
+
+---
+
+### Remove punctuation & symbols
+
+```{r, eval=FALSE}
+text <- gsub("[^a-z0-9 ]", "", text)
+```
+
+Keeps:
+
+* letters
+* numbers
+* spaces
+
+---
+
+### Remove standalone numbers
+
+```{r, eval=FALSE}
+texts <- gsub("\\b[0-9]+\\b", "", text)
+```
+
+Removes:
+
+* `352`
+* `98`
+* etc.
+
+---
+
+### Remove mixed alphanumeric tokens
+
+```{r, eval=FALSE}
+texts <- gsub("\\b[a-z]*[0-9]+[a-z]*\\b", "", text)
+```
+
+Removes:
+
+* `89769hlj`
+* `k9data`
+
+---
+
+### Remove single-letter tokens
+
+```{r, eval=FALSE}
+texts <- gsub("\\b[a-z]\\b", "", text)
+```
+
+Removes:
+
+* `n`
+* `o`
+* `t`
+
+---
+
+### Collapse multiple spaces
+
+```{r, eval=FALSE}
+texts <- gsub("\\s+", " ", text)
+```
+
+---
+
+### Trim edges
+
+```{r, eval=FALSE}
+texts <- trimws(text)
+```
+
+---
+
+## Token Counting (Space-Based)
+
+```{r, eval=FALSE}
+count_tokens_space <- function(x) {
+  parts <- strsplit(x, " ", fixed = TRUE)[[1]]
+  parts <- parts[parts != ""]
+  length(parts)
+}
+```
+
+---
+
+## Full Cleaning Genie Template
+
+```{r, eval=FALSE}
+cleaning_genie <- function(text) {
+
+  text <- gsub("[\r\n\t]+", " ", text)
+  text <- tolower(text)
+  text <- gsub("[^a-z0-9 ]", "", text)
+  text <- gsub("\\b[0-9]+\\b", "", text)
+  text <- gsub("\\b[a-z]*[0-9]+[a-z]*\\b", "", text)
+  text <- gsub("\\b[a-z]\\b", "", text)
+  text <- gsub("\\s+", " ", text)
+  text <- trimws(text)
+
+  return(text)
+}
+```
+
+---
+
+## When to Use What
+
+| Problem                       | Fix                       |
+| ----------------------------- | ------------------------- |
+| New lines messing token count | Normalize whitespace      |
+| Case inconsistency            | `tolower()`               |
+| Weird symbols                 | Remove punctuation        |
+| Random numbers                | Remove standalone numbers |
+| Junk like 89769hlj            | Remove mixed tokens       |
+| Too many spaces               | Collapse whitespace       |
+
+---
+
