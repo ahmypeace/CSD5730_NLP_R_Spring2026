@@ -1,0 +1,190 @@
+---
+title: "Assignment 3 - Cleaning Genie"
+author: "Amaka Peace Onebunne"
+date: "`r format(Sys.Date(), '%B %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 1
+    theme: cosmo
+    css: "Styles/Amy.css"
+---
+ 
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 5, fig.align = "left",
+  fig.path = "Figs/", cache.path = "Cache/",
+  eval = TRUE, echo = TRUE,
+  message = FALSE, warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(stringr)
+
+
+jamie.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", full_width = TRUE, html_font = "Helvetica", font_size = 12) |>
+    row_spec(0, color = "white", background = "#5b705f", font_size = 12) |>
+    scroll_box(width = "700px", height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+## R Markdown
+# Now for your challenge!
+Import 'sticks_messy.txt' from your data folder. Write simple cleaning function. Tell me how many tokens are in the file before and after cleaning (use " " as a separator).
+
+Submit your annotated cleaning genie function on your own CSS styled HTML file. Demonstrate that your cleaning genie 'works' on at least three text samples. 
+
+```{r}
+# Path to file
+file_path <- "Data2/sticks_messy.txt"
+
+# Read the entire file as ONE string:
+# - readLines() reads line by line
+# - paste(..., collapse = "\n") joins lines back together with newlines
+raw_lines <- readLines(file_path, warn = FALSE, encoding = "UTF-8")
+raw_text  <- paste(raw_lines, collapse = "\n")
+
+# Quick peek
+substr(raw_text, 1, 300)
+
+
+
+count_tokens_space <- function(x) {
+  # Split on literal single spaces:
+  parts <- strsplit(x, " ", fixed = TRUE)[[1]]
+  
+  # Remove empty tokens caused by multiple spaces:
+  parts <- parts[parts != ""]
+  
+  # Token count
+  length(parts)
+}
+
+tokens_before <- count_tokens_space(raw_text)
+tokens_before
+
+cleaning_genie <- function(text) {
+  #Normalize quotes 
+  
+    # Step 1: Replace line breaks and tabs
+  # Converts \n, \r, and \t into a single space
+  text <- gsub("[\r\n\t]+", " ", text)
+  
+  # Step 2: Convert to lowercase
+  text <- tolower(text)
+  
+  # Step 3: Remove punctuation and symbols
+  # Keep only lowercase letters, numbers, and spaces
+  text <- gsub("[^a-z0-9 ]", "", text)
+  
+  # Step 4: Remove standalone numbers (e.g., 352)
+  text <- gsub("\\b[0-9]+\\b", "", text)
+  
+  # Step 5: Remove mixed letter-number tokens (e.g., 89769hlj)
+  text <- gsub("\\b[a-z]*[0-9]+[a-z]*\\b", "", text)
+  
+  # Step 6: Remove single-letter tokens (e.g., n, o)
+  text <- gsub("\\b[a-z]\\b", "", text)
+  
+  # Step 7: Remove obvious nonsense strings (4+ consonants in a row)
+  text <- gsub("\\b[b-df-hj-np-tv-z]{4,}\\b", "", text)
+  
+  # Step 8: Collapse multiple spaces into one
+  text <- gsub("\\s+", " ", text)
+  
+  # Step 9: Trim leading and trailing spaces
+  text <- trimws(text)
+  
+  
+  # Return the cleaned text
+  return(text)
+}
+
+
+clean_text <- cleaning_genie(raw_text)
+substr(clean_text, 1, 300)
+
+tokens_after <- count_tokens_space(clean_text)
+```
+
+# Main Results Table
+```{r}
+results_table <- data.frame(
+  tokens_before,
+  tokens_after,
+  tokens_removed = tokens_before - tokens_after
+)
+
+colnames(results_table) <- c("Raw Token Count",
+                             "Cleaned Token Count",
+                             "Tokens Removed")
+kable(results_table)
+
+
+```
+# Three Steps Demonstration
+```{r}
+
+
+samples <- c(
+  "Hello!!!   This    is a TEST.\nNew line here.\tTabs too.",
+  "‘Quoted’ words, dashes—em dashes, and $$$ symbols!!!  123",
+  "Multiple     spaces     should    become one. END."
+)
+
+demo <- lapply(samples, function(s) {
+  cleaned <- cleaning_genie(s)
+  data.frame(
+    s,
+    cleaned,
+    count_tokens_space(s),
+    count_tokens_space(cleaned)
+  )
+})
+
+demo_df <- do.call(rbind, demo)
+
+colnames(demo_df) <- c("Original Sample Text",
+                       "Cleaned Output",
+                       "Original Token Count",
+                       "Cleaned Token Count")
+
+kable(demo_df)
+
+
+
+out_path <- "data/sticks_cleaned.txt"
+writeLines(clean_text, out_path, useBytes = TRUE)
+out_path
+
+
+```
