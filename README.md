@@ -26,6 +26,8 @@ CSD5730_NLP_R_Spring2026/
 │
 ├── Week_03/
 │ └── ...
+|__ Week_04/
+| |__...
 │
 ├── shared/
 │ ├── StylesTemplates/
