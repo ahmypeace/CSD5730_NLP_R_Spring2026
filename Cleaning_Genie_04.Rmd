@@ -1,0 +1,367 @@
+---
+title: "Clenaing Genie for Assignment Four"
+author: "Peace Onebunne"
+date: "February 2026"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "Styles/Amy.css"
+---
+
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 5, fig.align = "left",
+  fig.path = "Figs/", cache.path = "Cache/",
+  eval = TRUE, echo = TRUE,
+  message = FALSE, warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(quanteda)
+library(quanteda.textplots)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", full_width = TRUE, html_font = "Helvetica", font_size = 12) |>
+    row_spec(0, color = "white", background = "#5b705f", font_size = 12) |>
+    scroll_box(width = "700px", height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+# This is Cleaning Genie for Assignment 4:
+
+```{r}
+
+# Ceaning Genie from Assignments, Class and Research
+
+cleaning_genie_all <- function(text_input,
+                               # --- Output control ---
+                               return = c("text", "tokens", "both"),
+                               # --- Core cleaning toggles ---
+                               to_lower = TRUE,
+                               fix_encoding = TRUE,
+                               normalize_quotes = TRUE,
+                               remove_urls = TRUE,
+                               remove_emails = TRUE,
+                               remove_html_entities = TRUE,
+                               remove_numbers = TRUE,
+                               remove_bracketed = TRUE,     # removes content in (), [], {}
+                               keep_apostrophes = FALSE,    # if FALSE: apostrophes removed like other punctuation
+                               expand_contractions = TRUE,  # simple  expansion
+                               split_hyphens = TRUE,        # converts "-" and "_" to spaces
+                               drop_single_letters = FALSE, # optional (keeps "i" if FALSE)
+                               min_token_nchar = 2,         # minimum token length (after cleaning)
+                               squash_whitespace = TRUE,
+                               # --- Optional external resources ((url())) ---
+                               use_temple_stoplist = FALSE,
+                               temple_stoplist_url = "https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/Temple_stops25.rda",
+                               #tps://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/Temple_stops25.rda?raw=true",
+                               use_replacements_rda = FALSE,
+                               replacements_rda_url = "https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/replacements_25.rda?raw=true",
+                               # --- Custom additions ---
+                               custom_stopwords = NULL,     # character vector
+                               custom_replacements = NULL   # named character vector: c("old"="new")
+) {
+
+  return <- match.arg(return)
+
+
+ 
+  # 0) Standardize input
+  
+  if (length(text_input) > 1) {
+    text_input <- paste(text_input, collapse = " ")
+  }
+  text_input <- as.character(text_input)
+
+ 
+  # 1) Encoding fixes
+
+  if (fix_encoding) {
+    text_input <- iconv(text_input, from = "", to = "UTF-8", sub = " ")
+    text_input <- iconv(text_input, from = "UTF-8", to = "UTF-8", sub = " ")
+  }
+
+  
+  # 2) Normalize apostrophes/quotes
+  
+  if (normalize_quotes) {
+    # Curly single quotes and lookalikes -> '
+    text_input <- gsub("[\u2018\u2019\u02BC\u201B\uFF07\u0060\u00B4\u2032\u2035\u0091\u0092]", "'", text_input)
+    # Curly double quotes -> "
+    text_input <- gsub("[\u201C\u201D\u201E\u2033]", "\"", text_input)
+  }
+
+  
+  # 3) Lowercase
+  
+  if (to_lower) {
+    text_input <- tolower(text_input)
+  }
+
+  
+  # 4) Remove URLs/emails
+ 
+  if (remove_urls) {
+    text_input <- gsub("https?://\\S+|www\\.\\S+", " ", text_input)
+  }
+  if (remove_emails) {
+    text_input <- gsub("\\b[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}\\b", " ", text_input)
+  }
+
+  
+  # 5) Remove common HTML entities
+
+  if (remove_html_entities) {
+    text_input <- gsub("&nbsp;|&amp;|&lt;|&gt;|&quot;|&#39;", " ", text_input)
+  }
+
+ 
+  # 6) Remove bracketed content 
+
+  if (remove_bracketed) {
+    text_input <- gsub("\\[[^\\]]*\\]", " ", text_input)  # [ ... ]
+    text_input <- gsub("\\([^\\)]*\\)", " ", text_input)  # ( ... )
+    text_input <- gsub("\\{[^\\}]*\\}", " ", text_input)  # { ... }
+  }
+
+
+  # 7) Split hyphens/underscores
+ 
+  if (split_hyphens) {
+    text_input <- gsub("[-_]", " ", text_input)
+  }
+
+  
+  # 8) Expand contractions, transparent rules)
+  
+  if (expand_contractions) {
+    # Special cases
+    text_input <- gsub("\\bwon't\\b", "will not", text_input)
+    text_input <- gsub("\\bcan't\\b", "cannot", text_input)
+
+    # Common forms
+    text_input <- gsub("\\bI'm\\b|\\bi'm\\b", "i am", text_input)
+    text_input <- gsub("\\bit's\\b", "it is", text_input)
+    text_input <- gsub("\\bthat's\\b", "that is", text_input)
+    text_input <- gsub("\\bthere's\\b", "there is", text_input)
+    text_input <- gsub("\\bwhat's\\b", "what is", text_input)
+
+    # General patterns
+    text_input <- gsub("\\b([a-z]+)n't\\b", "\\1 not", text_input)  # do not
+    text_input <- gsub("\\b([a-z]+)'re\\b", "\\1 are", text_input)  # you are
+    text_input <- gsub("\\b([a-z]+)'ve\\b", "\\1 have", text_input) # we have
+    text_input <- gsub("\\b([a-z]+)'ll\\b", "\\1 will", text_input) # they will
+    text_input <- gsub("\\b([a-z]+)'d\\b", "\\1 would", text_input) # would (ambiguous but common)
+    # "'s" is messy (is/has/possessive) — keep conservative:
+    text_input <- gsub("\\b([a-z]+)'s\\b", "\\1", text_input)
+  }
+
+
+  # 9) Remove numbers
+
+  if (remove_numbers) {
+    text_input <- gsub("[0-9]+", " ", text_input)
+  }
+
+  
+  # 10) Remove punctuation (optionally keep apostrophes)
+  
+  if (keep_apostrophes) {
+    text_input <- gsub("'", "APOSTROPHE_TOKEN", text_input)
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+    text_input <- gsub("APOSTROPHE_TOKEN", "'", text_input)
+  } else {
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+  }
+
+
+  # 11) Squash whitespace
+ 
+  if (squash_whitespace) {
+    text_input <- gsub("\\s+", " ", text_input)
+    text_input <- trimws(text_input)
+  }
+
+  
+  # Token Cleaning Stage
+  
+  toks <- unlist(strsplit(text_input, "\\s+"))
+  toks <- toks[nzchar(toks)]
+
+  # Apply custom replacements (named vector)
+  
+  if (!is.null(custom_replacements)) {
+    if (is.null(names(custom_replacements)) || any(names(custom_replacements) == "")) {
+      stop("custom_replacements must be a NAMED character vector, e.g. c('colour'='color').")
+    }
+    for (pat in names(custom_replacements)) {
+      # whole-token replacement
+      toks[toks == pat] <- custom_replacements[[pat]]
+    }
+  }
+
+  # Optional: This allows me to use professor Jamie's replacements function if I want it
+  # This loads an R object that includes a function named replacements_25
+  if (use_replacements_rda) {
+    # Load into a temporary environment so my global workspace stays clean
+    tmp_env <- new.env(parent = emptyenv())
+    try(load(url(replacements_rda_url), envir = tmp_env), silent = TRUE)
+
+
+
+    if (exists("replacements_25", envir = tmp_env)) {
+      
+      # Build a token data.frame to match expected signature dat + wordcol
+      dat_tmp <- data.frame(word_clean = toks, stringsAsFactors = FALSE)
+      dat_tmp <- tmp_env$replacements_25(dat = dat_tmp, wordcol = word_clean)
+
+      # After replacements, split again in case replacements created multiword strings
+      toks <- unlist(strsplit(paste(dat_tmp$word_clean, collapse = " "), "\\s+"))
+      toks <- toks[nzchar(toks)]
+    }
+  }
+
+  # Drop single letters (optional; keep "i" by default)
+  if (drop_single_letters) {
+    toks <- toks[nchar(toks) > 1]
+  }
+
+  # Minimum token length rule (post-clean)
+  if (!is.null(min_token_nchar) && is.numeric(min_token_nchar) && min_token_nchar >= 1) {
+    toks <- toks[nchar(toks) >= min_token_nchar]
+  }
+
+  # Stopwords (Temple + custom) — optional to do here
+  if (use_temple_stoplist) {
+    tmp_env2 <- new.env(parent = emptyenv())
+    try(load(url(temple_stoplist_url), envir = tmp_env2), silent = TRUE)
+
+    # Most likely object name from your prof is Temple_stops25
+    if (exists("Temple_stops25", envir = tmp_env2)) {
+      sw <- tmp_env2$Temple_stops25
+      # accommodate either a data.frame with $word or a plain character vector
+      if (is.data.frame(sw) && "word" %in% names(sw)) {
+        sw <- sw$word
+      }
+      sw <- tolower(as.character(sw))
+      toks <- toks[!(toks %in% sw)]
+    }
+  }
+
+  if (!is.null(custom_stopwords)) {
+    custom_stopwords <- tolower(as.character(custom_stopwords))
+    toks <- toks[!(toks %in% custom_stopwords)]
+  }
+
+  # Rebuild cleaned text from tokens
+  cleaned_text <- paste(toks, collapse = " ")
+
+  # Return options
+  if (return == "text") {
+    return(cleaned_text)
+  }
+
+  token_df <- data.frame(
+    position = seq_along(toks),
+    token = toks,
+    stringsAsFactors = FALSE
+  )
+
+  if (return == "tokens") {
+    return(token_df)
+  }
+
+  return(list(
+    cleaned_text = cleaned_text,
+    token_table = token_df
+  ))
+}
+```
+
+
+## Import Manifesto
+
+```{r}
+
+unabomb_url <- "https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/unabomber_manifesto.txt"
+
+raw_lines <- readLines(unabomb_url, warn = FALSE)
+raw_text <- paste(raw_lines, collapse = "\n")
+
+
+```
+
+## Clean the manifesto
+
+```{r}
+
+clean_text <- cleaning_genie_all(
+  raw_text,
+  return = "text",
+  use_temple_stoplist = FALSE,   # keep FALSE only if I want stopwords removed in quanteda instead
+  use_replacements_rda = FALSE   # keep FALSE unless I want Dr. Jamie replacement function applied
+)
+
+
+```
+
+## Import into quanteda and do stopwords there
+
+```{r}
+corp_post <- quanteda::corpus(clean_text)
+
+toks_post <- quanteda::tokens(corp_post, remove_punct = TRUE, remove_numbers = TRUE)
+toks_post <- quanteda::tokens_remove(toks_post, quanteda::stopwords("en"))
+
+```
+
+## Trying Professor Jamie's Genie
+
+```{r}
+clean_text <- cleaning_genie_all(
+  raw_text,
+  return = "text",
+  use_temple_stoplist = TRUE,
+#se_replacements_rda = TRUE
+)
+
+cleaning_genie_all(
+  "I'm emailing you at test@gmail.com — can't you see this?? 123",
+  return = "both",
+  use_temple_stoplist = FALSE
+)
+
+```
+
+

@@ -1,0 +1,419 @@
+---
+title: "Assignment Four"
+author: "Peace Onebunne"
+date: "February 2026"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "Styles/Amy.css"
+---
+
+
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 5, fig.align = "left",
+  fig.path = "Figs/", cache.path = "Cache/",
+  eval = TRUE, echo = TRUE,
+  message = FALSE, warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(quanteda)
+library(quanteda.textplots)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", full_width = TRUE, html_font = "Helvetica", font_size = 12) |>
+    row_spec(0, color = "white", background = "#9D2235", font_size = 12) |>
+    scroll_box(width = "700px", height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+# This is Assignment 4:
+
+* Use Quanteda and base R for this assignment
+* Submit as HTML (link or file) using your own css styled output
+* Style it like a real report describing what you are doing at each step and why
+* Read in unabomber from my github repo
+* Output its structure
+* Run your cleaning genie
+* Import your cleaned version into Quanteda
+* Summary of your cleaned corpus
+* Table of lexical characteristics pre/post
+* Lexical Dispersion Plot (5 words)
+* Wordcloud
+* Print DFM (top 20 words)
+
+# Assignment 4
+
+In this report, I show how I read in the Unabomber manifesto, clean it using **base R**, and analyze it using **quanteda**. I explain each step briefly so the workflow is easy to follow.
+
+## 1. Read in the Unabomber text from GitHub
+
+I read the text from a raw GitHub link so the analysis is reproducible.
+
+```{r}
+
+# Raw GitHub link
+unabomb_url <- "https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/unabomber_manifesto.txt"
+
+# Read the text line by line
+raw_lines <- readLines(unabomb_url, warn = FALSE, encoding = "UTF-8")
+
+# Collapse lines into one single string
+raw_text <- paste(raw_lines, collapse = "\n")
+
+```
+### Why collapse the lines?
+
+* readLines() returns a vector where each line is separate.
+Text analysis works better when the full document is treated as one continuous string.
+
+***
+
+## 2. Examine the structure of the raw object
+
+Before cleaning, I want to confirm what I actually imported.
+
+```{r}
+str(raw_lines)
+str(raw_text)
+
+cat("Number of lines:", length(raw_lines), "\n")
+cat("Number of characters:", nchar(raw_text), "\n")
+```
+***The above tells me:***
+
+1. The object type
+2. How many lines exist
+3. How long the document is
+* Always check structure before cleaning.
+
+***
+
+## 3. Run my Cleaning Genie (Base R Only)
+
+Now I clean the text using base R. 
+<br>
+**My goals:**
+1. Convert to lowercase
+2. Remove punctuation
+3. Remove numbers
+4. Remove extra whitespace
+
+```{r}
+
+cleaning_genie <- function(text_input) {
+
+  # Convert everything to lowercase
+  text_input <- tolower(text_input)
+
+  # Remove numbers
+  text_input <- gsub("[0-9]", " ", text_input)
+
+  # Remove punctuation
+  text_input <- gsub("[[:punct:]]", " ", text_input)
+
+  # Remove extra whitespace
+  text_input <- gsub("\\s+", " ", text_input)
+
+  # Trim leading and trailing spaces
+  text_input <- trimws(text_input)
+
+  return(text_input)
+}
+
+clean_text <- cleaning_genie(raw_text)
+
+```
+
+### Preview of what changed:
+
+```{r}
+
+cat("Raw Text Sample:\n")
+cat(substr(raw_text, 1, 500), "\n\n")
+
+cat("Cleaned Text Sample:\n")
+cat(substr(clean_text, 1, 500), "\n")
+
+```
+
+***
+## 4. Create a Quanteda Corpus
+
+Now I convert both versions into corpora.
+
+### Why both?
+Because I want to compare lexical characteristics before and after cleaning.
+
+```{r}
+corp_pre  <- corpus(raw_text)
+corp_post <- corpus(clean_text)
+
+summary(corp_post)
+
+```
+**The summary shows:**
+
+1. Number of documents
+2. Number of tokens
+3. Basic structure
+
+***
+
+## 5. Tokenize the Text
+
+Tokenization means splitting the text into words.
+
+```{r}
+
+toks_pre <- tokens(
+  corp_pre, 
+  remove_numbers = TRUE, 
+  remove_punct = TRUE
+)
+
+toks_post <- tokens(
+  corp_post, 
+  remove_numbers = TRUE, 
+  remove_punct = TRUE
+)
+
+
+#Just getting a sisde by side view
+
+# Convert tokens to simple vectors
+pre_vec  <- unlist(toks_pre)
+post_vec <- unlist(toks_post)
+
+# Take first 20 words from each
+compare_tokens <- data.frame(
+  Pre_Clean  = head(pre_vec, 10),
+  Post_Clean = head(post_vec, 10)
+)
+
+# Print 
+kable(compare_tokens, caption = "First 20 Tokens: Pre vs Post Cleaning") |>
+  kable_styling(full_width = FALSE)
+
+```
+Now I will remove stopwords from the cleaned version (common words like “the”, “and”).
+
+```{r}
+toks_post <- tokens_remove(
+  toks_post, 
+  stopwords("en"))
+
+print(toks_post)
+
+```
+
+***
+
+## 6. Compare Lexical Characteristics (Pre vs Post)
+
+Now I calculate:
+
+1. Total words (tokens)
+2. Unique words (types)
+3. Type-Token Ratio (TTR)
+
+```{r}
+tokens_pre_count  <- sum(ntoken(toks_pre))
+tokens_post_count <- sum(ntoken(toks_post))
+
+types_pre  <- sum(ntype(toks_pre))
+types_post <- sum(ntype(toks_post))
+
+lex_table <- data.frame(
+  Version = c("Pre-Clean", "Post-Clean"),
+  Tokens  = c(tokens_pre_count, tokens_post_count),
+  Types   = c(types_pre, types_post),
+  TTR     = c(types_pre/tokens_pre_count,
+              types_post/tokens_post_count)
+)
+
+lex_table
+
+```
+
+### What does TTR say?
+
+* TTR = Unique words / Total words
+
+* It gives a rough measure of lexical diversity.
+
+***
+## 7. Create a Document-Feature Matrix (DFM)
+
+Now I convert tokens into a matrix where:
+
+1. Rows = documents
+2. Columns = words
+3. Values = frequency or word counts
+
+```{r}
+
+dfm_post <- dfm(toks_post)
+dfm_post
+
+```
+
+***
+
+## 8. Print Top 20 Words
+
+```{r}
+
+
+top20 <- topfeatures(dfm_post, 20)
+top20
+
+```
+
+### The above shows the 20 most frequent words in the cleaned text.
+
+***
+
+## 9. Lexical Dispersion Plot (5 Words)
+
+A dispersion plot shows where words appear across the document.
+Dispersion looks better when we have multiple “documents.”
+So I split the cleaned manifesto into chunks and treat each chunk as a document.
+
+```{r}
+# Split into chunks
+words <- unlist(strsplit(clean_text, "\\s+"))
+chunk_size <- 300
+
+chunks <- split(words, 
+                ceiling(seq_along(words) / chunk_size
+))
+
+chunk_text <- vapply(chunks, 
+                     paste, 
+                     character(1), 
+                     collapse = " "
+)
+
+corp_chunks <- corpus(chunk_text)
+
+toks_chunks <- tokens(corp_chunks, 
+                      remove_numbers = TRUE, 
+                      remove_punct = TRUE
+)
+
+
+toks_chunks <- tokens_remove(toks_chunks, stopwords("en"))
+
+dfm_chunks <- dfm(toks_chunks)
+
+# Choose 5 words from the cleaned DFM automatically (top 5)
+top5 <- names(topfeatures(dfm_chunks, 5))
+top5
+
+# NOTE:
+# The built-in quanteda lexical dispersion functions are currently incompatible
+# with the installed quanteda (v4.3.1) and quanteda.textplots (v0.96.1) versions.
+# The function is not exported properly in this namespace, causing knitting errors.
+# I am commenting this section out to allow the rest of the analysis to run smoothly.
+# The conceptual approach to dispersion (tracking word distribution across chunks)
+# remains demonstrated above through chunking and top feature selection.
+
+#textplot_lexical_dispersion(toks_chunks, top5)
+
+
+# Convert tokens object to a simple vector
+token_vector <- unlist(toks_chunks)
+
+# Create a data frame of word positions
+token_df <- data.frame(
+  position = seq_along(token_vector),
+  word = token_vector
+)
+
+# Keep only rows where the word is one of the top 5
+disp_data <- token_df[token_df$word %in% top5, ]
+
+library(ggplot2)
+
+ggplot(disp_data, aes(x = position, y = word)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Lexical Dispersion Plot (Top 5 Words)",
+    x = "Position in Text",
+    y = "Word"
+  ) +
+  theme_minimal()
+
+```
+
+The above helps to see whether certain ideas cluster in specific sections.
+
+***
+
+## 10. Wordcloud
+
+A wordcloud gives a visual overview of dominant terms.
+```{r}
+
+quanteda.textplots::textplot_wordcloud(dfm_post, max_words = 100)
+
+```
+
+Larger words appear more frequently.
+
+***
+
+## 11. Print DFM (Top 20 Words Only)
+
+```{r}
+dfm_top20 <- quanteda::dfm_select(dfm_post, pattern = names(top20))
+
+dfm_top20
+
+```
+
+### This shows the document-feature matrix restricted to the top 20 words.
+
+**What I Learned**
+
+Through this process, I learned:
+
+1. Always inspect structure before cleaning.
+2. Cleaning dramatically affects lexical counts.
+3. Stopword removal changes interpretation.
+4. DFM is the foundation for most text analysis.
+5. Visualization (dispersion + wordcloud) helps interpret patterns quickly.
+6. Most importantly, I now understand each step instead of just copying codes from stackoverflow.
+
