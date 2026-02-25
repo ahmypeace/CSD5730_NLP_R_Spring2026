@@ -20,14 +20,36 @@ body{
   box-shadow: 0 0 12px rgba(0,0,0,0.08);
 }
 
-/* Title block */
+/* Title block with logo */
+
 h1.title{
-  background: #9D2235;   /* Temple red */
+  background: #9D2235;
   color: white;
-  padding: 14px 18px;
+  padding: 18px 160px 18px 22px;
   font-size: 22pt;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  position: relative;
 }
+
+/* Logo inside title bar */
+
+h1.title::after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+
+  width: 110px;
+  height: 90px;
+
+  background-image: url("https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/Amy_Logo.png?raw=true");
+
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 
 p.author, p.date{
   margin: 0;
@@ -139,16 +161,28 @@ div#TOC{
 }
 
 /* Logo above TOC */
+
 #TOC::before{
   content: "";
   display: block;
-  height: 160px;
-  width: 150px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-image: url("https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/Amy_Lgo.png?raw=true");
+  height: 120px;
+  width: 120px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 15px;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }
 
+
+/* TOC layout control */
+
+div#TOC{
+  background: white;
+  border-radius: 6px;
+  padding: 15px;
+  font-size: 10pt;
+  max-width: 260px;
+}
