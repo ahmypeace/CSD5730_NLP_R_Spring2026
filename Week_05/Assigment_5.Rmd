@@ -1,0 +1,336 @@
+---
+title: "Assignment 5: MAking A professional Genie and CSS Styling "
+author: "Peace Onebunne"
+date: "February 2026"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "Styles/OnebunnePro.css"
+---
+
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, 
+  fig.height = 5, 
+  fig.align = "left",
+  fig.path = "Figs/", 
+  cache.path = "Cache/",
+  eval = TRUE, 
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(quanteda)
+library(tidyverse)
+library(ggplot2)
+library(quanteda.textplots)
+library(tidyr)
+library(dplyr)
+library(textstem)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", 
+                full_width = TRUE, 
+                html_font = "Helvetica", 
+                font_size = 12) |>
+    row_spec(
+      0, 
+      color = "white", 
+      background = "#9D2235", 
+      font_size = 12) |>
+    scroll_box(
+      width = "700px", 
+      height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+# Asiignment 5 breakdown: Pro CSS 
+
+* Create a bland but professional style sheet
+* Modify unambomber so you apply pro template
+* Improve your cleaning genie so you’re happy rename the genie first name_genie
+* Summarize your corpus with new cleaning data
+* Write out your hypothesis about unabomber
+* Run your four variables
+* Visualize results
+* Describe the results in human words
+
+## 1. A little upgrade from previous genie
+```{r}
+peace_genie_pro <- function(text_input,
+                        to_lower = TRUE,
+                        fix_encoding = TRUE,
+                        normalize_quotes = TRUE,
+                        remove_urls = TRUE,
+                        remove_emails = TRUE,
+                        remove_numbers = TRUE,
+                        split_hyphens = TRUE,
+                        keep_apostrophes = FALSE,
+                        squash_whitespace = TRUE) {
+
+  # If input is multiple lines, collapse into one string
+  if (length(text_input) > 1) text_input <- paste(text_input, collapse = " ")
+  text_input <- as.character(text_input)
+
+  # Encoding cleanup
+  if (fix_encoding) {
+    text_input <- iconv(
+      text_input, 
+      from = "", 
+      to = "UTF-8", 
+      sub = " "
+      )
+    
+    text_input <- iconv(
+      text_input, 
+      from = "UTF-8", 
+      to = "UTF-8", 
+      sub = " "
+      )
+  }
+
+  # Normalize curly quotes
+  if (normalize_quotes) {
+    text_input <- gsub(
+      "[\u2018\u2019\u02BC\u201B\uFF07\u0060\u00B4\u2032\u2035\u0091\u0092]",
+                       "'",
+                       text_input)
+    text_input <- gsub("[\u201C\u201D\u201E\u2033]", "\"", text_input)
+  }
+  
+
+  # Lowercase
+  if (to_lower) text_input <- tolower(text_input)
+
+  # Remove URLs and emails
+  if (remove_urls) text_input <- gsub("https?://\\S+|www\\.\\S+", " ", text_input)
+  if (remove_emails) text_input <- gsub("\\b[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}\\b", " ", text_input)
+
+  # Split hyphens and underscores
+  if (split_hyphens) text_input <- gsub("[-_]", " ", text_input)
+
+  # Remove numbers
+  if (remove_numbers) text_input <- gsub("[0-9]+", " ", text_input)
+
+  # Punctuation handling
+  if (keep_apostrophes) {
+    text_input <- gsub("'", "APOSTROPHE_TOKEN", text_input)
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+    text_input <- gsub("APOSTROPHE_TOKEN", "'", text_input)
+  } else {
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+  }
+
+  # Whitespace
+  if (squash_whitespace) {
+    text_input <- gsub("\\s+", " ", text_input)
+    text_input <- trimws(text_input)
+  }
+
+  return(text_input)
+}
+
+```
+
+## 2. Modify Unabomber” pipeline using pro template + new cleaning
+
+```{r}
+
+unabomb_url <- "https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/unabomber_manifesto.txt"
+raw_lines <- readLines(unabomb_url, 
+                       warn = FALSE, 
+                       encoding = "UTF-8")
+
+raw_text  <- paste(raw_lines, collapse = "\n")
+
+clean_text <- peace_genie_pro(raw_text)
+
+corp_raw   <- corpus(raw_text)
+corp_clean <- corpus(clean_text)
+
+summary(corp_clean)
+
+```
+
+## 3. Adding a lexical table
+
+```{r}
+
+toks_raw   <- quanteda::tokens(corp_raw, remove_punct = TRUE, remove_numbers = TRUE)
+toks_clean <- quanteda::tokens(corp_clean, remove_punct = TRUE, remove_numbers = TRUE)
+
+
+# Stopwords removed at token stage (I read it is recommended for corpus stats)
+toks_clean_nostop <- tokens_remove(toks_clean, stopwords("en"))
+
+lex_table <- tibble(
+  Version = c("Raw", "Clean", "Clean + Stopwords Removed"),
+  Tokens  = c(sum(ntoken(toks_raw)), sum(ntoken(toks_clean)), sum(ntoken(toks_clean_nostop))),
+  Types   = c(sum(ntype(toks_raw)),  sum(ntype(toks_clean)), sum(ntype(toks_clean_nostop)))
+) %>%
+  mutate(TTR = Types / Tokens)
+
+lex_table
+
+
+```
+
+## 4. Hypothesis
+
+I expect the tone of the Unabomber manifesto to become more emotionally intense as the text moves forward. In particular, I expect the language to show more anger and stronger emotional activation in later sections. At the same time, I expect the overall tone to become more negative. I also expect the language to stay mostly abstract, focusing on large systems and social structures rather than everyday, concrete experiences.
+
+If this is correct, then later chunks of the manifesto should show lower valence, higher anger and arousal, and consistently low levels of concreteness.
+
+
+## 5. Run my four variables via (Dr.Jamie lookup database)
+```{r}
+
+# Chunk into pseudo-documents
+words <- unlist(strsplit(clean_text, "\\s+"))
+chunk_size <- 300
+chunks <- split(words, ceiling(seq_along(words) / chunk_size))
+chunk_text <- vapply(chunks, paste, character(1), collapse = " ")
+
+corp_chunks <- corpus(chunk_text)
+
+toks_chunks <- quanteda::tokens(
+  corp_chunks,
+  remove_punct = TRUE,
+  remove_numbers = TRUE
+)
+
+toks_chunks <- quanteda::tokens_remove(toks_chunks, quanteda::stopwords("en"))
+
+
+# Convert tokens to a tidy table (chunk id + token)
+token_tbl <- tibble(
+  chunk_id = rep(seq_along(toks_chunks), lengths(toks_chunks)),
+  token = unlist(toks_chunks)
+) %>%
+  mutate(token_lemma = lemmatize_strings(token))
+
+# Load lookup db from GitHub
+load(url("https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/lookup_Jul25.rda?raw=true"))
+lookup_db <- lookup_Jul25
+
+# Inspect names to choose variables
+names(lookup_db)
+
+# Variable pick
+vars_pick <- c(
+  "emo_anger_rescale",
+  "emo_valence_b24_rescale",
+  "emo_arousal_b24_rescale",
+  "sem_cnc_b24_rescale"
+)
+
+vars_pick %in% names(lookup_db)
+
+```
+
+
+## 6. Join and compute chunk-level averages
+```{r}
+lookup_small <- lookup_db %>%
+  select(word, all_of(vars_pick))
+
+joined <- token_tbl %>%
+  left_join(lookup_small, by = c("token_lemma" = "word"))
+
+chunk_scores <- joined %>%
+  group_by(chunk_id) %>%
+  summarise(across(all_of(vars_pick), ~mean(.x, na.rm = TRUE)),
+            n_tokens = n(),
+            n_matched = sum(!is.na(joined[[vars_pick[1]]])),
+            .groups = "drop")
+
+chunk_scores
+
+```
+
+## 7. Visualize results - Line plots (one per variable)
+
+```{r}
+for (v in vars_pick) {
+  p <- ggplot(chunk_scores, aes(x = chunk_id, y = .data[[v]])) +
+    geom_line() +
+    geom_point() +
+    labs(
+      title = paste("Unabomber Manifesto:", v, "across text chunks"),
+      x = "Chunk (progress through text)",
+      y = paste("Mean", v)
+    ) +
+    theme_bw()
+
+  print(p)
+}
+
+
+
+```
+
+## 8. Combine into a long table and plot
+
+```{r}
+scores_long <- chunk_scores %>%
+  select(chunk_id, all_of(vars_pick)) %>%
+  pivot_longer(cols = all_of(vars_pick), names_to = "variable", values_to = "value")
+
+ggplot(scores_long, aes(x = chunk_id, y = value)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~variable, scales = "free_y") +
+  labs(title = "Four lexical variables across the manifesto",
+       x = "Chunk", y = "Mean value") +
+  theme_bw()
+
+
+
+```
+
+## 9. Results Description
+
+Across the manifesto, I noticed clear fluctuations over time when I scored each chunk using the four lexical variables from the lookup database.
+
+First, **emo_anger_rescale** moves up and down but does not show a steady increase as the text progresses. That tells me the language does not gradually become more hostile toward the end. Anger is present throughout the manifesto, but it does not build in a linear way.
+
+Second, **emo_arousal_b24_rescale** also varies across chunks. Some sections are more emotionally charged than others, but there is no consistent upward trend. The emotional intensity feels uneven rather than cumulative.
+
+Third, **emo_valence_b24_rescale** is fairly volatile instead of steadily declining. The tone shifts across sections, but those shifts are not concentrated only in the later parts of the text. Positivity and negativity move back and forth across the manifesto.
+
+Finally, **sem_cnc_b24_rescale** stays low overall. That suggests the manifesto is written at a more abstract, system-level register rather than grounded in everyday, concrete narrative details.
+
+Overall, the results partially support my hypothesis. The manifesto clearly maintains an abstract orientation, but it does not show a strong, linear escalation in anger, arousal, or negativity toward the end.
