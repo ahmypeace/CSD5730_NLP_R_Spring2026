@@ -1,4 +1,3 @@
----
 # Assignment 6 — Hypothesis Construction on the Gaslighting Dataset
 
 **CSD5730 | NLP in R | Spring 2026**
@@ -189,5 +188,3 @@ Rather than reducing gaslighting to emotion, this project treats it as structure
 ---
 
 *Styled with OnebunnePro.css | Submitted as part of CSD5730 — NLP in R, Spring 2026*
-
----
