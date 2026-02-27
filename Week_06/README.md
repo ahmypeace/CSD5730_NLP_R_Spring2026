@@ -1,5 +1,4 @@
 ---
-
 # Assignment 6 — Hypothesis Construction on the Gaslighting Dataset
 
 **CSD5730 | NLP in R | Spring 2026**
