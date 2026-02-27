@@ -1,156 +1,101 @@
+---
 
-# Assignment 6: Developing a Hypothesis on the Gaslighting Dataset
+# Assignment 6 — Hypothesis Construction on the Gaslighting Dataset
 
+**CSD5730 | NLP in R | Spring 2026**
 **Author:** Peace Onebunne
-**Course:** CSD 5730 – NLP in R
-**Semester:** Spring 2026
+**Date:** February 2026
 
 ---
 
-## Project Overview
+## Overview
 
-This project develops and tests a theory-driven hypothesis using the publicly available *Gaslighting Dataset* from the Reilly Concepts & Cognition Lab.
+This assignment develops a theory-driven hypothesis about linguistic patterns in the Gaslighting Dataset. Using a custom-built text cleaning pipeline, dictionary-based feature engineering, and frequency analysis, the project tests whether gaslighting can be operationalized as a structured communicative phenomenon rather than isolated emotional disagreement.
 
-Rather than treating gaslighting as emotion alone, this analysis conceptualizes gaslighting as a communicative structure reflected in recurring linguistic patterns. The project applies a custom text preprocessing pipeline, dictionary-based feature extraction, and frequency-based statistical analysis to test whether gaslighting communication manifests in measurable language patterns.
-
-The final submission is rendered as an HTML document styled using a custom professional CSS theme.
+The analysis moves from text normalization → corpus construction → tokenization → theory-based dictionary lookup → statistical frequency testing → visualization.
 
 ---
 
-## Research Question
+## What’s in This Assignment
 
-If gaslighting exists as a communicative phenomenon, can it be detected through recurring linguistic markers in narrative text?
+| Step | Description                                        |
+| ---- | -------------------------------------------------- |
+| 1    | Load and inspect the Gaslighting corpus            |
+| 2    | Convert ID variables to factor format              |
+| 3    | Apply upgraded `peace_genie_pro()` cleaner         |
+| 4    | Compare raw vs cleaned text (100-word view table)  |
+| 5    | Construct a quanteda corpus                        |
+| 6    | Tokenize and remove stopwords                      |
+| 7    | Convert text to a Document-Feature Matrix          |
+| 8    | Build a theory-driven gaslighting dictionary       |
+| 9    | Extract manipulation features using `dfm_lookup()` |
+| 10   | Compute frequency statistics                       |
+| 11   | Visualize feature dominance                        |
+| 12   | Interpret results and evaluate hypothesis          |
+
+---
+
+## Libraries Used
+
+```r
+library(tidyverse)
+library(quanteda)
+library(quanteda.textstats)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(textstem)
+library(dplyr)
+```
+
+---
+
+## The Cleaning Pipeline — `peace_genie_pro()`
+
+This function was developed incrementally throughout the semester and upgraded for this assignment.
+
+### Key Features:
+
+* UTF-8 normalization
+* NA handling and encoding repair
+* HTML tag removal
+* Smart quote normalization
+* Roman numeral preservation
+* URL and email removal
+* Hyphen splitting
+* Number removal
+* Elongation collapse (e.g., "soooo" → "so")
+* Controlled punctuation handling
+* Optional apostrophe preservation
+* Whitespace normalization
+
+> Apostrophes are intentionally preserved to retain conversational constructions central to gaslighting narratives (e.g., “you didn’t,” “I never said that”).
+
+All steps are vectorized and reproducible.
 
 ---
 
 ## Hypothesis
 
-Texts in the gaslighting dataset will contain higher frequencies of linguistic markers associated with:
+> *Texts in the gaslighting dataset will contain elevated frequencies of denial, blame attribution, emotional invalidation, control language, and memory destabilization markers.*
 
-* Denial of reality
-* Blame attribution
-* Emotional invalidation
-* Control or directive language
-* Memory destabilization
-
-In short:
-
-If gaslighting is structurally communicative, we should see it in word usage patterns.
+If gaslighting operates as patterned communication, it should appear systematically in word usage.
 
 ---
 
-## Dataset
+## Theory-Driven Dictionary Categories
 
-The dataset was loaded directly from the Reilly Lab public repository:
+The feature dictionary was constructed from peer-reviewed gaslighting research.
 
-```r
-load(url("https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/gaslight.rda?raw=true"))
-```
+| Category       | What It Captures                          |
+| -------------- | ----------------------------------------- |
+| `denial`       | Contradiction of memory or perception     |
+| `blame`        | Responsibility shifting                   |
+| `invalidation` | Emotional dismissal or competence attacks |
+| `control`      | Directive or dominance-based language     |
+| `doubt_memory` | Cognitive destabilization                 |
 
-The corpus includes:
-
-* Narrative descriptions of adult workplace interpersonal conflict
-* Participant demographic variables
-* Self-reported gaslighting experience
-
-Initial inspection was conducted to verify encoding, structure, and categorical variable formatting.
-
----
-
-## Methodological Pipeline
-
-### 1. Custom Text Cleaning Function
-
-A fully vectorized preprocessing function (`peace_genie_pro`) was developed throughout the semester and applied to stabilize linguistic representation.
-
-Key preprocessing steps include:
-
-1. UTF-8 normalization
-2. NA handling
-3. HTML tag removal
-4. Unicode normalization
-5. Smart quote normalization
-6. Roman numeral preservation
-7. Lowercasing
-8. URL removal
-9. Email removal
-10. Hyphen splitting
-11. Number removal
-12. Elongation collapse (e.g., "soooo" → "so")
-13. Symbol removal
-14. Controlled punctuation removal
-15. Whitespace normalization
-
-Apostrophes were intentionally preserved to retain conversational constructions such as:
-
-* "you didn’t"
-* "you’re wrong"
-* "I never said that"
-
-These structures are theoretically meaningful in gaslighting communication.
-
----
-
-### 2. Corpus Construction
-
-Cleaned text was converted into a `quanteda` corpus:
-
-```r
-corp <- quanteda::corpus(gaslight$clean_text)
-```
-
----
-
-### 3. Tokenization & Stopword Removal
-
-Tokenization was performed using `quanteda::tokens()`, followed by removal of English stopwords.
-
-This reduces lexical noise while preserving psychologically meaningful terms.
-
----
-
-### 4. Document-Feature Matrix
-
-The tokenized corpus was converted into a Document-Feature Matrix (DFM):
-
-```r
-dfm_gaslight <- dfm(tokens_clean)
-```
-
-This step converts text into a numerical structure suitable for statistical analysis.
-
----
-
-## Theory-Driven Dictionary Construction
-
-Rather than selecting frequent words arbitrarily, features were derived from peer-reviewed gaslighting research.
-
-The dictionary captures five communicative dimensions:
-
-### 1. Denial
-
-Contradiction of memory or perception
-Examples: "deny", "never", "imagining"
-
-### 2. Blame
-
-Responsibility shifting
-Examples: "fault", "because", "accuse"
-
-### 3. Emotional Invalidation
-
-Dismissal of feelings or competence
-Examples: "crazy", "overreacting", "lazy"
-
-### 4. Control Language
-
-Directive or dominance-based language
-Examples: "should", "must", "required"
-
-### 5. Doubt Memory
-
-Cognitive destabilization
-Examples: "doubt", "confused", "remember"
+Instead of selecting frequent words arbitrarily, each category is grounded in psychological theory.
 
 Feature extraction was performed using:
 
@@ -158,93 +103,92 @@ Feature extraction was performed using:
 gas_features <- dfm_lookup(dfm_gaslight, gaslight_dict)
 ```
 
-This aggregates lexical features into theoretically meaningful categories.
-
 ---
 
 ## Statistical Analysis
 
-Frequency statistics were calculated using:
+Frequency counts were calculated using:
 
 ```r
 textstat_frequency(gas_features)
 ```
 
-This allows comparison of:
+This converts communicative strategies into measurable variables.
 
-* Denial
-* Blame
-* Invalidation
-* Control
-* Doubt-memory language
+The goal is not sentiment scoring, but structural pattern detection.
 
 ---
 
 ## Visualization
 
-Feature categories were visualized using `ggplot2` with a Temple-red gradient palette.
+A Temple-red gradient palette was used to visualize feature dominance across categories.
 
-The visualization enables immediate comparison of communicative strategies across the corpus.
+* Horizontal bar plot
+* Feature categories ordered by frequency
+* Legend removed for clarity
+* Designed for interpretability and presentation
 
 ---
 
-## Findings
+## Key Findings
+
+* **Control language** emerged as the most frequent feature category.
+* **Denial** and **emotional invalidation** followed.
+* **Blame attribution** and **memory destabilization** appeared consistently.
 
 The hypothesis was supported.
 
-Control language emerged as the most frequent feature category, followed by denial and invalidation. Blame attribution and memory-doubt language also appeared consistently.
-
-This suggests that gaslighting communication is not random disagreement, but rather structured through recurring linguistic strategies.
+Gaslighting appears not as isolated emotional disagreement, but as recurring linguistic structures that redistribute responsibility and destabilize perception.
 
 ---
 
-## Theoretical Contribution
+## Folder Structure
 
-This project demonstrates that:
-
-* Psychological manipulation can be operationalized linguistically.
-* Computational text analysis can measure interpersonal destabilization patterns.
-* Dictionary-based feature engineering allows theory-driven quantitative validation.
-
-Rather than reducing gaslighting to sentiment, this approach treats it as patterned communication.
-
----
-
-## Required Packages
-
-* tidyverse
-* quanteda
-* quanteda.textstats
-* ggplot2
-* textstem
-* knitr
-* kableExtra
+```
+Week_06/
+├── Onebunne_Assignment_6.Rmd
+├── Onebunne_Assignment_6.html
+├── Images/
+│   ├── Amy_Logo.png
+├── Styles/
+│   └── OnebunnePro.css
+└── README.md
+```
 
 ---
 
-## Reproducibility
+## Live Report
 
-To reproduce this project:
-
-1. Install required packages.
-2. Knit the R Markdown file:
-
-   ```
-   Onebunne_Assignment_6.Rmd
-   ```
-3. Ensure internet access for dataset loading.
+> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/Assignment6_Onebunne.html)
 
 ---
 
-## References
+## Data Source
 
-Bellomare, M., et al. (2024). Gaslighting exposure during emerging adulthood. *Journal of Interpersonal Violence*.
+| File                | Source                                              |
+| ------------------- | --------------------------------------------------- |
+| Gaslighting Dataset | Reilly Concepts & Cognition Lab — Public Repository |
 
-Darke, L., Paterson, H., & van Golde, C. (2025). Illuminating gaslighting: A comprehensive interdisciplinary review of gaslighting literature. *Journal of Family Violence*.
+Loaded directly via:
 
-Ghaltakhchyan, S. (2024). Linguistic portrayal of gaslighting in interpersonal relationships. *Armenian Folia Anglistika*.
+```r
+load(url("https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/gaslight.rda?raw=true"))
+```
 
-Klein, W. (2025). A theoretical framework for studying the phenomenon of gaslighting. *Personality and Social Psychology Review*.
+---
 
-Podosky, P. M. C. (2021). Gaslighting, first- and second-order. *Hypatia*.
+## Conceptual Contribution
 
+This assignment demonstrates:
+
+* How interpersonal manipulation can be operationalized linguistically
+* How dictionary-based feature engineering links theory to computation
+* How text analysis can measure destabilization patterns in narrative form
+
+Rather than reducing gaslighting to emotion, this project treats it as structured communication.
+
+---
+
+*Styled with OnebunnePro.css | Submitted as part of CSD5730 — NLP in R, Spring 2026*
+
+---
