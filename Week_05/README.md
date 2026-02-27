@@ -41,7 +41,7 @@ library(textstem)
 
 ---
 
-## 🧹 The Upgraded Genie — `peace_genie_pro()`
+## The Upgraded Genie — `peace_genie_pro()`
 
 The cleaner was renamed and improved from Assignment 4. Key features:
 
