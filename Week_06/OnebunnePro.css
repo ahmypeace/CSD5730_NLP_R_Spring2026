@@ -1,0 +1,137 @@
+/* Temple Color Code Section Bar Style */
+
+/* Page */
+body{
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13pt;
+  color: #222;
+  background: #efefef;
+  line-height: 1.6;
+  margin: 0 auto;
+  max-width: 1050px;
+  padding: 30px;
+}
+
+/* Main content */
+.main-container{
+  background: #ffffff;
+  padding: 35px 50px;
+  border-radius: 6px;
+  position: relative;
+}
+
+/* Title block */
+h1.title{
+  background: #9D2235;   /* Temple red */
+  color: white;
+  padding: 14px 18px;
+  font-size: 22pt;
+  margin-bottom: 15px;
+  padding-right:  130px;
+}
+
+p.author, p.date{
+  margin: 0;
+  color: #444;
+}
+
+/* Major section headers */
+h1{
+  background: #9D2235;
+  color: white;
+  padding: 10px 16px;
+  font-size: 18pt;
+  margin-top: 35px;
+}
+
+/* Subsections */
+h2{
+  background: #C3424D;  /* lighter red */
+  color: white;
+  padding: 8px 14px;
+  font-size: 15pt;
+  margin-top: 25px;
+}
+
+/* Smaller subsections */
+h3{
+  color: #9D2235;
+  font-size: 14pt;
+  margin-top: 20px;
+  border-left: 4px solid #C3424D;
+  padding-left: 8px;
+}
+
+/* Links */
+a{
+  color: #9D2235;
+  text-decoration: none;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+
+/* Code blocks */
+pre{
+  background: #fafafa;
+  border-left: 4px solid #9D2235;
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 11pt;
+}
+
+code{
+  font-family: Menlo, Consolas, monospace;
+}
+
+/* Tables */
+table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11pt;
+  display: block;
+  overflow-x: auto;
+}
+
+th{
+  background: #9D2235;
+  color: white;
+  padding: 8px;
+  text-align: left;
+}
+
+td{
+  padding: 8px;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+/* TOC */
+div#TOC{
+  background: white;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 10pt;
+}
+
+.tocify-item.active{
+  background: #9D2235;
+  color: white !important;
+}
+
+.tocify-item:hover{
+  background: #f4e3e6;
+}
+
+/* Logo positioning */
+.page-logo{
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  z-index: 999;
+}
+
+.page-logo img{
+  height: 120px;
+  width: auto;
+}

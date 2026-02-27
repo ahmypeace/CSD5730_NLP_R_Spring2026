@@ -1,0 +1,682 @@
+---
+title: "Assignment 6: Dveloping a Hypothesis on the Gaslighting Dataset"
+author: "Peace Onebunne"
+date: "February 2026"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/OnebunnePro.css?raw=true"
+---
+
+<div class="page-logo">
+  
+  <img src="https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/Amy_Logo.png?raw=true" alt="Logo">
+  
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, 
+  fig.height = 5, 
+  fig.align = "left",
+  fig.path = "Figs/", 
+  cache.path = "Cache/",
+  eval = TRUE, 
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(quanteda)
+library(tidyverse)
+library(ggplot2)
+library(quanteda.textplots)
+library(tidyr)
+library(dplyr)
+library(textstem)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", 
+                full_width = TRUE, 
+                html_font = "Helvetica", 
+                font_size = 12) |>
+    row_spec(
+      0, 
+      color = "white", 
+      background = "#9D2235", 
+      font_size = 12) |>
+    scroll_box(
+      width = "700px", 
+      height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+# Asiignment 6 breakdown: Hypothesis Construction 
+
+1) State a hypothesis about the gaslighting dataset
+
+2) Develop your processing pipeline and justify steps, etc. 
+
+3) Analyze your data, report relevant statistics and visualization(s)
+
+4) State your conclusions
+
+
+Guidelines:
+
+1) Submit as HTML or a link
+
+2) Style using your 'pro css'
+
+3) Check spelling and formatting
+
+
+## Introduction and Hypothesis
+
+Gaslighting is widely studied as a form of psychological manipulation communicated through language. Researchers describe gaslighting as communication that causes individuals to doubt their memory, perception, or judgment through repeated denial, blame shifting, or emotional dismissal (Belllomare, 2024).
+
+Rather than treating gaslighting as emotion alone, scholars increasingly argue that it works through recognizable linguistic patterns such as denial statements, invalidation phrases, isolation, inconsistent behavior, coercion, and responsibility reversal (Darke et al., 2024; Valeria, 2025).
+
+### Hypothesis
+
+Texts in the gaslighting dataset will contain higher frequencies of linguistic markers associated with denial, blame attribution, and emotional invalidation reflected through increased use of second-person targeting, negation language, and evaluative emotional terms.
+
+In simple terms:
+
+If gaslighting exists, we should see it in word usage.
+
+- I created this cleaning throughout the semester (peace_genie_pro) designed to stabilize linguistic representation prior to analysis; especially because gaslighting narratives may contain conversational language, contractions, and inconsistent encoding.
+```{r}
+
+peace_genie_pro <- function(
+  text_input,
+  to_lower            = TRUE,
+  fix_encoding        = TRUE,
+  normalize_quotes    = TRUE,
+  remove_urls         = TRUE,
+  remove_emails       = TRUE,
+  remove_html         = TRUE,
+  remove_numbers      = TRUE,
+  preserve_roman      = TRUE,
+  split_hyphens       = TRUE,
+  keep_apostrophes    = TRUE,
+  normalize_unicode   = TRUE,
+  collapse_elongated  = TRUE,
+  remove_symbols      = TRUE,
+  remove_extra_punct  = TRUE,
+  squash_whitespace   = TRUE,
+  verbose             = TRUE
+) {
+
+  # 1. Input Validation
+  if (missing(text_input)) stop("No text input supplied.")
+  text_input <- as.character(text_input)
+
+  # 2. Track NA
+  na_count <- sum(is.na(text_input))
+  text_input[is.na(text_input)] <- ""
+
+  # 3. Normalize Encoding
+  Encoding(text_input) <- "UTF-8"
+  text_input           <- enc2utf8(text_input)
+  text_input[is.na(text_input)] <- ""
+
+  # 4. Fix Encoding Artifacts
+  if (fix_encoding) {
+    text_input <- iconv(text_input, from = "", to = "UTF-8", sub = "")
+    text_input[is.na(text_input)] <- ""
+  }
+
+  # 5. Remove HTML Tags
+  if (remove_html) {
+    text_input <- gsub("<[^>]+>", " ", text_input)
+  }
+
+  # 6. Normalize Unicode Spaces
+  if (normalize_unicode) {
+    text_input <- gsub("[\u00A0\u2000-\u200B\u202F\u205F\u3000]", " ", text_input, perl = TRUE)
+  }
+
+  # 7. Normalize Smart Quotes
+  if (normalize_quotes) {
+    text_input <- gsub("[\u2018\u2019\u02BC\u201B\uFF07\u0060\u00B4]", "'", text_input, perl = TRUE)
+    text_input <- gsub("[\u201C\u201D\u201E\u2033]", "\"", text_input, perl = TRUE)
+  }
+
+  # 8. Preserve Roman Numerals
+  if (preserve_roman) {
+    text_input <- gsub(
+      "\\b(M{1,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))\\b",
+      " ROMAN_NUM ",
+      text_input,
+      perl = TRUE
+    )
+  }
+
+  # 9. Lowercase
+  if (to_lower) {
+    text_input <- tolower(text_input)
+  }
+
+  # 10. Remove URLs
+  if (remove_urls) {
+    text_input <- gsub("https?://\\S+|www\\.\\S+", " ", text_input)
+  }
+
+  # 11. Remove Emails
+  if (remove_emails) {
+    text_input <- gsub(
+      "\\b[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}\\b",
+      " ", text_input
+    )
+  }
+
+  # 12. Split Hyphens & Underscores
+  if (split_hyphens) {
+    text_input <- gsub("[-_]", " ", text_input)
+  }
+
+  # 13. Remove Numbers
+  if (remove_numbers) {
+    text_input <- gsub("[0-9]+", " ", text_input)
+  }
+
+  # 14. Remove Extra Punctuation (e.g., !!! or ???)
+  if (remove_extra_punct) {
+    text_input <- gsub("([[:punct:]])\\1+", "\\1", text_input, perl = TRUE)
+  }
+
+  # 15. Collapse Elongated Words (e.g., sooo → so)
+  if (collapse_elongated) {
+    text_input <- gsub("(.)\\1{2,}", "\\1", text_input, perl = TRUE)
+  }
+
+  # 16. Remove Symbols (non-word characters except apostrophes)
+  if (remove_symbols) {
+    text_input <- gsub("[^[:alnum:][:space:]']", " ", text_input)
+  }
+
+  # 17. Punctuation Control (Preserve Apostrophes Optionally)
+  if (keep_apostrophes) {
+    text_input <- gsub("'", "APOSTOKEN", text_input, fixed = TRUE)
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+    text_input <- gsub("APOSTOKEN", "'", text_input, fixed = TRUE)
+  } else {
+    text_input <- gsub("[[:punct:]]+", " ", text_input)
+  }
+
+  # 18. Restore Roman Placeholder
+  if (preserve_roman) {
+    text_input <- gsub("roman_num", "", text_input, fixed = TRUE)
+  }
+
+  # 19. Whitespace Normalization
+  if (squash_whitespace) {
+    text_input <- gsub("\\s+", " ", text_input)
+    text_input <- trimws(text_input)
+  }
+
+  # 20. Verbose Report
+  if (verbose) {
+    empty_after <- sum(text_input == "")
+    message(sprintf(
+      "[peace_genie_pro_advanced] Processed %d strings | %d NA replaced | %d empty after cleaning",
+      length(text_input),
+      na_count,
+      empty_after
+    ))
+  }
+
+  return(text_input)
+}
+
+```
+
+
+# Step 1. Load and Inspect Gaslighting Corpus
+```{r}
+
+# Load gaslight corpus 
+
+load(url("https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/gaslight.rda?raw=true"))
+
+str(gaslight)
+
+```
+## Justification
+
+Before analysis, corpus structure must be verified to ensure:
+
+* documents are correctly encoded
+
+* variables are interpretable
+
+* categorical variables function as factors
+
+
+# Step 2. Convert Variables to Factors
+
+```{r}
+
+gaslight$ID <- as.factor(gaslight$ID)
+
+```
+
+## Why?
+
+Factor variables allow for:
+
+* grouping
+
+* statistical comparison
+
+* aggregation across narratives
+
+Without this, modeling may be difficult later.
+
+
+# Step 3. Text Cleaning
+Because gaslighting narratives contain conversational language, contractions, and inconsistent encoding.Standard token cleaning alone may remove psychologically meaningful structure.Therefore, preprocessing was conducted using a custom normalization function I created throughout the semester (peace_genie_pro) designed to stabilize linguistic representation prior to analysis.
+
+Goal: remove noise that does not carry meaning.Here,I am bringing in some of my cleaning genie
+
+```{r}
+gaslight$clean_text <- peace_genie_pro(
+  gaslight$gd_adult_story,
+  keep_apostrophes = TRUE
+)
+head(gaslight$clean_text)
+```
+
+## Why this step?
+
+The cleaner:
+
+* fixes encoding artifacts
+
+* normalizes quotation marks
+
+* removes URLs and numeric noise
+
+* preserves contractions critical to interpersonal accusation
+
+* standardizes whitespace
+
+This ensures extracted linguistic features represent communicative behavior rather than formatting irregularities.
+
+## Why keep apostrophes?
+
+Gaslighting frequently appears in conversational constructions such as:
+
+* you didn’t
+
+* you’re wrong
+
+* I never said that
+
+Removing apostrophes destroys these meaningful linguistic signals.
+
+## I want to keep things comprhensive for me without seeing the entire data after knitting all the time
+
+```{r}
+limit_words <- function(text, n = 100){
+
+  words <- strsplit(as.character(text), "\\s+")
+
+  sapply(words, function(x){
+    if(length(x) > n){
+      paste(paste(head(x, n), collapse = " "), "...")
+    } else {
+      paste(x, collapse = " ")
+    }
+  }, USE.NAMES = FALSE)
+}
+
+
+before_after_100 <- data.frame(
+  Original_Text = limit_words(gaslight$gd_adult_story, 100),
+  Cleaned_Text  = limit_words(gaslight$clean_text, 100),
+  stringsAsFactors = FALSE
+)[1:10, ]
+
+
+#View(before_after)
+
+library(kableExtra)
+
+kable(
+  before_after_100,
+  caption = "Comparison of Raw and Cleaned Text After Applying peace_genie_pro() (First 100 Words)"
+) |>
+kable_styling(full_width = FALSE) |>
+column_spec(1, width = "30em") |>
+column_spec(2, width = "30em")
+
+
+```
+# Step 4. Creating a Text Corpus
+
+```{r}
+
+library(quanteda)
+
+corp <- quanteda::corpus(gaslight$clean_text)
+
+
+```
+
+## Why?
+A corpus organizes texts so computers recognize them as analyzable documents. Basically telling R to treat this as a language data
+
+
+# Step 5: Tokenization and Stopword Removal
+```{r}
+
+tokens_clean <- quanteda::tokens(
+  corp,
+  remove_symbols = TRUE
+)
+
+tokens_clean <- quanteda::tokens_remove(
+  tokens_clean,
+  stopwords("en")
+)
+
+head(tokens_clean)
+```
+## Why:
+
+* Tokenization breaks text into individual words.
+* Stopwords remove words that interfer with clean analysis
+
+Example:
+
+"you are imagining things" becomes - imagining things
+
+
+Common filler words are removed so patterns become visible.
+
+
+# Step 6: Converting Text into Numbers 
+
+```{r}
+
+dfm_gaslight <- dfm(tokens_clean)
+
+
+```
+
+## Why?
+
+So that language can be statistically analyzed.
+
+
+# Step 7. Feature Extraction (Theory based)
+
+Instead of randomly selecting words, I looked at peer-reviewed gaslighting research for commonly discussed features.
+
+- Academic Basis for Features
+
+Research shows gaslighting commonly involves:
+
+1. Denial of Reality
+
+Gaslighting includes statements that contradict another person’s memory or perception (Podosky, 2021).
+
+Examples:
+
+* never happened
+
+* you imagined it
+
+
+
+2. Blame Shifting
+
+Responsibility is redirected toward the target (Bellomare, 2024).
+
+Examples:
+
+* your fault
+
+* because of you
+
+
+
+3. Emotional Invalidation
+
+Feelings are minimized or dismissed (Ghaltakhchyan, 2024).
+
+Examples:
+
+* you are crazy
+
+* too sensitive
+
+* overreacting
+
+
+
+4. Control Language
+
+Directive language reinforces dominance or authority (Valeria, 2025).
+
+Examples:
+
+* you should
+
+* you must
+
+Given that an initial inspection of the corpus shows that the texts consists of descriptions of interactions, not direct transcripts of what the gaslighter said, this characteristic will be taken into account when constructing the feature dictionary. Specifically, the dictionary will be designed to capture reported manipulation verbs and descriptive language used to narrate denial, blame shifting, and psychological invalidation.
+
+# Step 8. Build Gaslighting Dictionary
+
+This could also be done usinng grounded theory, that is building this dictionary from the corpus by inpecting first for frequency.
+
+```{r}
+gaslight_dict <- dictionary(list(
+
+  # contradiction of perception or reality
+  denial = c(
+     "deny","denied","denies",
+    "insist","insisted","insists",
+    "claim","claimed","claims",
+    "refuse","refused",
+    "dismiss","dismissed",
+    "never",
+    "misremember",
+    "imagining"
+  ),
+
+  # shifting responsibility
+  blame = c(
+     "fault","blame","blamed",
+    "because",
+    "responsible",
+    "accuse","accused",
+    "deserve","deserved"
+  ),
+
+  # dismissing feelings or competence
+  invalidation = c(
+     "crazy", "sensitive", "overreact",
+    "overreacting", "dramatic", "wrong",
+    "lazy", "incompetent"
+  ),
+
+  # authority or dominance language
+  control = c(
+    "should","must","supposed",
+    "insist","insisted","claim","claimed",
+    "always", "need","required"
+    
+  ),
+
+  # cognitive destabilization (VERY IMPORTANT)
+  doubt_memory = c(
+    "doubt","doubted", "memory",
+    "confused","confuse", "unsure",
+    "question", "remember"
+  )
+
+))
+
+
+```
+
+## Why?
+
+- The dictionary groups words linked to gaslighting behaviors such as denial and blame.
+
+- It allows similar words to be analyzed as one meaningful category.
+
+- This helps move from individual words to communication patterns.
+
+- The dictionary can be theory-driven (from research) or data-driven using grounded theory by inspecting frequent words in the corpus first.
+
+- Building the dictionary makes psychological concepts measurable in text analysis.
+
+```{r}
+
+
+#topfeatures(dfm_gaslight, 20)
+
+```
+
+# Step 9: Extracting the Linguistic Features
+This counts how often each manipulation strategy appears.
+
+```{r}
+
+gas_features <- dfm_lookup(
+  dfm_gaslight,
+  gaslight_dict
+)
+
+```
+
+## Why TF-IDF?
+
+Because common words appear everywhere.
+
+TF-IDF highlights:
+
+* distinctive manipulation language
+
+* psychologically salient terms
+
+# Step 10. Analysis (Frequency Statistics)
+
+```{r}
+library(quanteda.textstats)
+
+freq_table <- textstat_frequency(gas_features)
+freq_table
+
+
+#dict_counts <- dfm_lookup(dfm_gaslight, gaslight_dict)
+#textstat_frequency(dict_counts)
+```
+
+## Why?
+
+- Frequency statistics show how often each gaslighting feature appears.
+
+- This helps identify which communication patterns occur most frequently.
+
+- It allows comparison between denial, blame, and invalidation language.
+
+- Counting features provides evidence to evaluate the hypothesis.
+
+- It turns text patterns into measurable results.
+
+
+# Step 11: Visualization to show which communicative strategies appear most often.
+
+```{r}
+library(ggplot2)
+
+
+ggplot(freq_table,
+       aes(x = reorder(feature, frequency),
+           y = frequency,
+           fill = feature)) +
+  geom_col() +
+  coord_flip() +
+ scale_fill_manual(values = c(
+  "denial" = "#9D2235",
+  "control" = "#dd6c7f",
+  "invalidation" = "#ff9dae",
+  "doubt_memory" = "#fdc8d1",
+  "blame" = "#ffedf0"
+)) +
+  labs(
+    title = "Gaslighting Language Features",
+    x = "Feature Category",
+    y = "Frequency"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+```
+
+## Why?
+
+- Visualization helps make patterns easier to see and understand.
+
+- It shows which communicative strategies appear most often in the data.
+
+- Graphs allow quick comparison between feature categories.
+
+- Visual results support interpretation of frequency statistics.
+
+- It helps communicate findings clearly to readers.
+
+## Conclusions/Suport for Hypothesis
+The hypothesis was supported, as control language emerged as the most frequent feature, followed by denial, invalidation, and blame, demonstrating that gaslighting communication is characterized by recurring linguistic structures rather than isolated expressions or random disagreement.
+
+Denial, blame attribution, and emotional invalidation appear systematically across texts, supporting psychological theories that gaslighting works through repeated communicative patterns that destabilize perception and redistribute responsibility.
+
+Computational text analysis therefore provides measurable evidence of manipulation through language.
+
+## References
+
+Bellomare, M., et al. (2024). Gaslighting exposure during emerging adulthood. *Journal of Interpersonal Violence*.
+
+Darke, L., Paterson, H., & van Golde, C. (2025). Illuminating gaslighting: A comprehensive interdisciplinary review of gaslighting literature. *Journal of Family Violence*. https://doi.org/10.1007/s10896-025-00805-4
+
+Ghaltakhchyan, S. (2024). Linguistic portrayal of gaslighting in interpersonal relationships. *Armenian Folia Anglistika*.
+
+Klein, W. (2025). A theoretical framework for studying the phenomenon of gaslighting. *Personality and Social Psychology Review*.
+
+Podosky, P. M. C. (2021). Gaslighting, first- and second-order. *Hypatia, 36*(4), 1–18.
+
