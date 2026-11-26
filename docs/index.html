@@ -1,1 +1,243 @@
-
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="NLP in R portfolio of Amaka Peace Onebunne for CSD5730 at Temple University, Spring 2026" />
+        <meta name="author" content="Amaka Peace Onebunne" />
+        <title>NLP in R Portfolio | Amaka Peace Onebunne</title>
+        <link rel="icon" type="image/png" href="assets/img/favicon.png" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <style>
+            .project-kicker { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #9d2235; margin-bottom: 0.5rem; }
+            .project .project-kicker { color: #e8a5b0; }
+            .featured-text p, .project-text p { text-align: left; }
+            .tool-list { margin-top: 1rem; }
+            .tool-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.3em 0.75em; border-radius: 50rem; margin: 0 0.3rem 0.45rem 0; background: #f3dde1; color: #6e1825; }
+            .project .tool-badge { background: rgba(255, 255, 255, 0.12); color: #fff; }
+            .report-link { display: inline-block; margin-top: 0.75rem; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+            .project .report-link { color: #e8a5b0; }
+            .project-img { background: #fff; object-fit: contain; width: 100%; height: 100%; }
+            .weeks-section { padding: 8rem 0; background: #fff; }
+            .week-card { border: 1px solid #e9ecef; border-radius: 0.5rem; padding: 1.5rem; height: 100%; transition: box-shadow 0.2s ease; }
+            .week-card:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08); }
+            .week-num { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #9d2235; }
+            .week-card h4 { font-size: 1.1rem; margin: 0.4rem 0 0.6rem; }
+            .week-card p { color: rgba(0, 0, 0, 0.55); font-size: 0.95rem; margin-bottom: 0.75rem; }
+            .about-section { padding-bottom: 8rem; }
+        </style>
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="#page-top">NLP in R</a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#weeks">All Assignments</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
+                <div class="d-flex justify-content-center">
+                    <div class="text-center">
+                        <h1 class="mx-auto my-0 text-uppercase">NLP in R</h1>
+                        <h2 class="text-white-50 mx-auto mt-2 mb-5">Text cleaning, corpus analysis, and dictionary methods in R. A course portfolio by Amaka Peace Onebunne, Temple University, Spring 2026.</h2>
+                        <a class="btn btn-primary" href="#projects">See the Projects</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- About-->
+        <section class="about-section text-center" id="about">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="text-white mb-4">About This Course</h2>
+                        <p class="text-white-50">
+                            CSD5730, Natural Language Processing for Biobehavioral and Neuroscience Applications, taught text analysis in R from the ground up.
+                            Each week added a step to one pipeline: cleaning raw text, building a corpus, counting and comparing words, and finally testing hypotheses with dictionaries and psycholinguistic norms.
+                            The cleaning function at the center of that pipeline started in Week 3 as a short base R script and grew into <code class="text-white">peace_genie_pro()</code>, which every later project reuses.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Projects-->
+        <section class="projects-section bg-light" id="projects">
+            <div class="container px-4 px-lg-5">
+                <!-- Featured Project Row-->
+                <div class="row gx-0 mb-4 mb-lg-5 align-items-center">
+                    <div class="col-xl-8 col-lg-7"><img class="img-fluid mb-3 mb-lg-0" src="assets/img/gaslighting.png" alt="Bar chart of gaslighting language features by frequency" /></div>
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="featured-text">
+                            <div class="project-kicker">Week 6 · Featured project</div>
+                            <h4>Measuring Gaslighting in Text</h4>
+                            <p class="text-black-50 mb-0">This project asked whether gaslighting shows up as a pattern in word use, or only as scattered moments of disagreement. Texts in the Gaslighting Dataset were cleaned with <code>peace_genie_pro()</code>, which keeps apostrophes so phrases like "you didn't" and "I never said that" survive cleaning. A dictionary drawn from published gaslighting research sorted words into five categories: denial, blame, emotional invalidation, control, and doubt about memory. Denial and control language were the most frequent, followed by invalidation, while doubt about memory and blame appeared less often but consistently. The hypothesis was supported, since all five features recurred across the corpus.</p>
+                            <div class="tool-list"><span class="tool-badge">quanteda</span><span class="tool-badge">dfm_lookup()</span><span class="tool-badge">textstat_frequency()</span><span class="tool-badge">textstem</span><span class="tool-badge">ggplot2</span></div>
+                            <a class="report-link" href="reports/week-06-gaslighting.html">Read the report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project One Row-->
+                <div class="row gx-0 mb-5 mb-lg-0 justify-content-center">
+                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/manifesto-emotion.png" alt="Four line plots of anger, arousal, valence, and concreteness across the Unabomber Manifesto" /></div>
+                    <div class="col-lg-6">
+                        <div class="bg-black text-center h-100 project">
+                            <div class="d-flex h-100">
+                                <div class="project-text w-100 my-auto text-center text-lg-left">
+                                    <div class="project-kicker">Week 5</div>
+                                    <h4 class="text-white">Does the Manifesto Get Angrier?</h4>
+                                    <p class="mb-0 text-white-50">The hypothesis was that the Unabomber Manifesto's language would grow angrier, more aroused, and more negative as it went on, while staying abstract throughout. The text was split into 300-word chunks, lemmatized, and joined to the Reilly Lab psycholinguistic database to score anger, arousal, valence, and concreteness. Anger, arousal, and valence moved up and down across the chunks without building toward the end. Concreteness stayed low the whole way, which fits the manifesto's focus on systems and society. The hypothesis was partly supported.</p>
+                                    <div class="tool-list"><span class="tool-badge">peace_genie_pro()</span><span class="tool-badge">textstem</span><span class="tool-badge">quanteda</span><span class="tool-badge">dplyr joins</span><span class="tool-badge">ggplot2 facets</span></div>
+                                    <a class="report-link" href="reports/week-05-professional-genie.html">Read the report <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project Two Row-->
+                <div class="row gx-0 justify-content-center">
+                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/dispersion.png" alt="Lexical dispersion plot of the top five words in the Unabomber Manifesto" /></div>
+                    <div class="col-lg-6 order-lg-first">
+                        <div class="bg-black text-center h-100 project">
+                            <div class="d-flex h-100">
+                                <div class="project-text w-100 my-auto text-center text-lg-right">
+                                    <div class="project-kicker">Week 4</div>
+                                    <h4 class="text-white">From Raw Text to a Clean Corpus</h4>
+                                    <p class="mb-0 text-white-50">This assignment built a full cleaning and analysis pipeline for the Unabomber Manifesto, starting from a raw text file on GitHub. A base R cleaning function lowercased the text and removed numbers, punctuation, and extra spaces before it became a quanteda corpus. Cleaning and removing stopwords cut the text from 34,085 tokens to 17,891, and the type-token ratio rose from 0.13 to 0.22. The most frequent words after cleaning were society, system, people, power, and one. A lexical dispersion plot then showed where those words fall across the document.</p>
+                                    <div class="tool-list"><span class="tool-badge">base R</span><span class="tool-badge">quanteda corpus</span><span class="tool-badge">tokens and dfm</span><span class="tool-badge">dispersion plot</span><span class="tool-badge">wordcloud</span></div>
+                                    <a class="report-link" href="reports/week-04-unabomber-pipeline.html">Read the report <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- All assignments-->
+        <section class="weeks-section" id="weeks">
+            <div class="container px-4 px-lg-5">
+                <div class="text-center mb-5">
+                    <h2 class="text-uppercase mb-3">All Assignments</h2>
+                    <p class="text-black-50 mx-auto" style="max-width: 40rem;">Every weekly report from the course, rendered from R Markdown.</p>
+                </div>
+                <div class="row gx-4 gy-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 1</div>
+                            <h4>Text Manipulation in R</h4>
+                            <p>Creating strings, splitting text into words, and counting letters per word.</p>
+                            <a class="report-link mt-0" href="reports/week-01-text-manipulation.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 2</div>
+                            <h4>Text Cleaning and Tokenization</h4>
+                            <p>Cleaning and tokenizing text with base R, plus an annotated cheat sheet.</p>
+                            <a class="report-link mt-0" href="reports/week-02-text-cleaning.html">Open report <i class="fas fa-arrow-right"></i></a>
+                            <a class="report-link mt-0 ms-3" href="reports/week-02-cheatsheet.html">Cheat sheet <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 3</div>
+                            <h4>Cleaning Genie</h4>
+                            <p>A first cleaning function for a messy text file and a check of how cleaning changes token counts.</p>
+                            <a class="report-link mt-0" href="reports/week-03-cleaning-genie.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 4</div>
+                            <h4>Unabomber Manifesto Pipeline</h4>
+                            <p>Corpus building, lexical comparison, a dispersion plot, and a wordcloud.</p>
+                            <a class="report-link mt-0" href="reports/week-04-unabomber-pipeline.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 5</div>
+                            <h4>Professional Genie and CSS</h4>
+                            <p>An upgraded cleaner, custom styling, and psycholinguistic scores across the manifesto.</p>
+                            <a class="report-link mt-0" href="reports/week-05-professional-genie.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 6</div>
+                            <h4>Gaslighting Hypothesis</h4>
+                            <p>A theory-driven dictionary to test for patterned gaslighting language.</p>
+                            <a class="report-link mt-0" href="reports/week-06-gaslighting.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Contact-->
+        <section class="contact-section bg-black" id="contact">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card py-4 h-100">
+                            <div class="card-body text-center">
+                                <i class="fab fa-github text-primary mb-2"></i>
+                                <h4 class="text-uppercase m-0">Code</h4>
+                                <hr class="my-4 mx-auto" />
+                                <div class="small text-black-50"><a href="https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026">Course repository on GitHub</a></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card py-4 h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-envelope text-primary mb-2"></i>
+                                <h4 class="text-uppercase m-0">Email</h4>
+                                <hr class="my-4 mx-auto" />
+                                <div class="small text-black-50"><a href="mailto:amaka.onebunne@temple.edu">amaka.onebunne@temple.edu</a></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="card py-4 h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user text-primary mb-2"></i>
+                                <h4 class="text-uppercase m-0">Website</h4>
+                                <hr class="my-4 mx-auto" />
+                                <div class="small text-black-50"><a href="https://ahmypeace.github.io">ahmypeace.github.io</a></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="social d-flex justify-content-center">
+                    <a class="mx-2" href="https://github.com/ahmypeace" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a class="mx-2" href="https://www.linkedin.com/in/amakapeace/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a class="mx-2" href="https://x.com/Ahmypeace" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </section>
+        <!-- Footer-->
+        <footer class="footer bg-black small text-center text-white-50"><div class="container px-4 px-lg-5">Copyright &copy; 2026 Amaka Peace Onebunne. Theme: Grayscale by Start Bootstrap (MIT).</div></footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

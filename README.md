@@ -1,5 +1,8 @@
 # CSD5730 – Natural Language Processing with R (Spring 2026)
 
+**Live portfolio:** https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/
+
+
 This repository contains **all assignments, exercises, templates, and outputs** for the course  
 **CSD5730: Natural Language Processing with R (Spring 2026)**.
 
