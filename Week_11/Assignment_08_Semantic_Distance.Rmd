@@ -8,7 +8,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 1
-    css: "https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/jr_20.css?raw=true"
+    css: "Styles/onebunne_semantic_distance.css"
 ---
 
 ```{r setup, include=FALSE}

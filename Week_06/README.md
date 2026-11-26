@@ -131,9 +131,9 @@ A Temple-red gradient palette was used to visualize feature dominance across cat
 
 ## Key Findings
 
-* **Control language** emerged as the most frequent feature category.
-* **Denial** and **emotional invalidation** followed.
-* **Blame attribution** and **memory destabilization** appeared consistently.
+* **Denial** (387) and **control language** (386) were the most frequent feature categories, nearly tied.
+* **Emotional invalidation** (349) followed.
+* **Memory destabilization** (233) and **blame attribution** (212) appeared less often but consistently.
 
 The hypothesis was supported.
 

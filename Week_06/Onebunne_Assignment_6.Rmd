@@ -661,8 +661,8 @@ ggplot(freq_table,
 
 - It helps communicate findings clearly to readers.
 
-## Conclusions/Suport for Hypothesis
-The hypothesis was supported, as control language emerged as the most frequent feature, followed by denial, invalidation, and blame, demonstrating that gaslighting communication is characterized by recurring linguistic structures rather than isolated expressions or random disagreement.
+## Conclusions/Support for Hypothesis
+The hypothesis was supported. Denial (387) and control language (386) were the most frequent features, nearly tied, followed by emotional invalidation (349), doubt about memory (233), and blame (212). This shows that gaslighting communication is characterized by recurring linguistic structures rather than isolated expressions or random disagreement.
 
 Denial, blame attribution, and emotional invalidation appear systematically across texts, supporting psychological theories that gaslighting works through repeated communicative patterns that destabilize perception and redistribute responsibility.
 
