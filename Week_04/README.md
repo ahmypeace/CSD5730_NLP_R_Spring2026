@@ -87,7 +87,7 @@ The **Type-Token Ratio (TTR)** increased after cleaning, reflecting higher lexic
 
 ## Live Report
 
-> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/Assignment_4.html)
+> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-04-unabomber-pipeline.html)
 
 ---
 

@@ -1,0 +1,316 @@
+---
+title: "Genie Contest: peace_genie_pro_max()"
+author: "Peace Onebunne"
+date: "2026-02-25"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/OnebunnePro.css?raw=true"
+---
+
+<div class="page-logo">
+  
+  <img src="https://github.com/ahmypeace/CSD5730_NLP_R_Spring2026/blob/main/assets/Amy_Logo.png?raw=true" alt="Logo">
+  
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, 
+  fig.height = 5, 
+  fig.align = "left",
+  fig.path = "Figs/", 
+  cache.path = "Cache/",
+  eval = TRUE, 
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  yaml.eval.expr = TRUE
+)
+
+library(tidyverse)
+library(here)
+library(knitr)
+library(kableExtra)
+library(quanteda)
+library(tidyverse)
+library(ggplot2)
+library(quanteda.textplots)
+library(tidyr)
+library(dplyr)
+library(textstem)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", 
+                full_width = TRUE, 
+                html_font = "Helvetica", 
+                font_size = 12) |>
+    row_spec(
+      0, 
+      color = "white", 
+      background = "#9D2235", 
+      font_size = 12) |>
+    scroll_box(
+      width = "700px", 
+      height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+```
+
+```{r}
+# Helper: safe gsub 
+safe_gsub <- function(pattern, replacement, x, ...) {
+  x <- as.character(x)
+  x[is.na(x)] <- ""
+  gsub(pattern, replacement, x, ...)
+}
+
+# Helper: expand common English contractions
+
+expand_contractions <- function(x) {
+  # Order matters: specific forms before general n't rule
+  x <- safe_gsub("won't",   "will not",  x, fixed = TRUE)
+  x <- safe_gsub("can't",   "cannot",    x, fixed = TRUE)
+  x <- safe_gsub("shan't",  "shall not", x, fixed = TRUE)
+  x <- safe_gsub("n't",     " not",      x, fixed = TRUE)
+  x <- safe_gsub("'re",     " are",      x, fixed = TRUE)
+  x <- safe_gsub("'ve",     " have",     x, fixed = TRUE)
+  x <- safe_gsub("'ll",     " will",     x, fixed = TRUE)
+  x <- safe_gsub("'d",      " would",    x, fixed = TRUE)
+  x <- safe_gsub("'m",      " am",       x, fixed = TRUE)
+  x
+}
+
+
+# Main cleaning function
+peace_genie_pro_max <- function(
+                                text_input       = my_text,
+                                to_lower            = TRUE,
+                                fix_encoding        = TRUE,
+                                normalize_quotes    = TRUE,
+                                remove_urls         = TRUE,
+                                remove_emails       = TRUE,
+                                remove_numbers      = TRUE,
+                                preserve_roman      = TRUE,
+                                split_hyphens       = TRUE,
+                                keep_apostrophes    = TRUE,
+                                expand_contractions = TRUE,
+                                remove_stopwords    = FALSE,
+                                stopword_lang       = "en",
+                                lemmatize        = FALSE,
+                                tokenize   = FALSE,
+                                squash_whitespace   = TRUE,
+                                verbose             = TRUE) {
+
+
+  # 1. Input Validation
+  
+  if (missing(text_input)) {
+    stop("No text input supplied.")
+  }
+
+  # Force character
+  text_input <- as.character(text_input)
+
+  # Track original NA positions
+  na_count <- sum(is.na(text_input))
+
+  # Replace NA safely
+  text_input[is.na(text_input)] <- ""
+
+  # Set and normalise encoding
+  Encoding(text_input) <- "UTF-8"
+  text_input           <- enc2utf8(text_input)
+  text_input[is.na(text_input)] <- ""
+
+
+  # 2. Fix Encoding Issues on PDF or Web Text
+
+  if (fix_encoding) {
+    text_input <- iconv(text_input, from = "", to = "UTF-8", sub = "")
+    text_input[is.na(text_input)] <- ""
+  }
+
+
+  # 3. Normalize Smart Quotes
+  
+  if (normalize_quotes) {
+    text_input <- safe_gsub(
+      "[\u2018\u2019\u02BC\u201B\uFF07\u0060\u00B4\u2032\u2035\u0091\u0092]",
+      "'", text_input
+    )
+    text_input <- safe_gsub(
+      "[\u201C\u201D\u201E\u2033]",
+      "\"", text_input
+    )
+  }
+
+
+  # 4. Protect Roman Numeral
+  
+   if (preserve_roman) {
+    text_input <- safe_gsub(
+      "\\b(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))\\b",
+      " ROMAN_NUM ",
+      text_input,
+      perl = TRUE
+    )
+  }
+
+
+  # 5. To Lower Case
+  
+  if (to_lower) text_input <- tolower(text_input)
+
+
+  # 6. Remove Urls and Emails
+  
+  if (remove_urls)
+    text_input <- safe_gsub("https?://\\S+|www\\.\\S+", " ", text_input)
+
+  if (remove_emails)
+    text_input <- safe_gsub(
+      "\\b[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}\\b",
+      " ", text_input
+    )
+
+
+  # 7. Split Hyphens and Underscores
+  
+  if (split_hyphens) text_input <- safe_gsub("[-_]", " ", text_input)
+
+
+  # 8. Remove numbers
+  
+  if (remove_numbers) text_input <- safe_gsub("[0-9]+", " ", text_input)
+
+
+  # 9. Normalize any repeated punctuation and elongated characters
+  
+
+  text_input <- safe_gsub("([[:punct:]])\\1+", "\\1", text_input, perl = TRUE)
+  text_input <- safe_gsub("(.)\\1{2,}",        "\\1", text_input, perl = TRUE)
+
+
+  # 10. Expand Contractions
+  
+  if (expand_contractions) text_input <- expand_contractions(text_input)
+
+
+  # 11. Punctuation COntrol
+  
+  if (keep_apostrophes) {
+    text_input <- safe_gsub("'",        "APOSTOKEN", text_input, fixed = TRUE)
+    text_input <- safe_gsub("[[:punct:]]+", " ",     text_input)
+    text_input <- safe_gsub("APOSTOKEN", "'",        text_input, fixed = TRUE)
+  } else {
+    text_input <- safe_gsub("[[:punct:]]+", " ", text_input)
+  }
+
+
+  # 12. Removes Stopwords using quanteda's built-in lists
+
+  if (remove_stopwords) {
+    sw <- quanteda::stopwords(stopword_lang)
+    text_input <- sapply(text_input, function(doc) {
+      words <- unlist(strsplit(doc, " "))
+      words <- words[words != ""]          # drop empty tokens
+      paste(words[!words %in% sw], collapse = " ")
+    }, USE.NAMES = FALSE)
+  }
+
+  # 13. Lemmatize
+  
+  if (lemmatize) {
+    text_input <- textstem::lemmatize_strings(text_input)
+  }
+
+  # 14. Clean up Roman Numeral Placeholder
+  
+  if (preserve_roman) {
+    text_input <- safe_gsub("roman_num", "", text_input, fixed = TRUE)
+    # after lowercase step the placeholder becomes roman_num
+  }
+
+
+  # 15. Whitespsace Normalization
+  
+  if (squash_whitespace) {
+    text_input <- safe_gsub("\\s+", " ", text_input)
+    text_input <- trimws(text_input)
+  }
+
+
+  # 16. Verbose Cleaning Report
+  
+  if (verbose) {
+    empty_after <- sum(trimws(text_input) == "")
+    message(sprintf(
+      "[peace_genie_pro_max] Cleaned %d string(s) | %d were NA | %d empty after cleaning",
+      length(text_input),
+      na_count,
+      empty_after
+    ))
+  }
+
+ # 17. Tokenize
+  
+  if (tokenize) {
+    text_input <- quanteda::tokens(
+      text_input,
+      what            = "word",
+      remove_punct    = FALSE,  # already handled above
+      remove_numbers  = FALSE,  # already handled above
+      remove_symbols  = TRUE,
+      remove_url      = FALSE   # already handled above
+    )
+  }
+  # 16. Return Clean Char Vector
+  
+  return(as.character(text_input))
+}
+```
+
+## Demo Testing
+
+```{r}
+test <- c(
+  "SECTION IV: You didn't say that!!!",
+  NA,
+  "Email: test@test.com --- PART XII",
+  "   Weird     spacing   here   ",
+  "Sooooo excited about this!!! Check http://example.com",
+  "She won't can't shan't stop!!!"
+)
+
+peace_genie_pro_max(test)
+```
+
+## Demo: Stopword Removal Enabled
+
+```{r}
+peace_genie_pro_max(test, remove_stopwords = TRUE)
+
+#remember lematization, and apostrophe in terms of possessive nouns or pronoun
+```

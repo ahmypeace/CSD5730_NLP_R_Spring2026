@@ -158,7 +158,7 @@ Week_06/
 
 ## Live Report
 
-> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/Assignment6_Onebunne.html)
+> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-06-gaslighting.html)
 
 ---
 

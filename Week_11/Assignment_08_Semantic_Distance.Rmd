@@ -1,0 +1,497 @@
+---
+title: "Assignment 8: Semantic Distance"
+author: "Amaka Peace Onebunne"
+date: "`r format(Sys.Date(), '%B %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 1
+    css: "https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/jr_20.css?raw=true"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8,
+  fig.height = 5,
+  fig.align = 'left',
+  fig.path = 'Figs/',
+  cache.path = 'Cache/',
+  eval = TRUE,
+  echo = TRUE,
+  tidy = TRUE,
+  cache = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  stringsAsFactors = FALSE
+)
+
+library(xfun)
+
+xfun::pkg_attach(
+  c(
+    "tidyverse", "stringi", "quanteda", "readr", "textclean",
+    "readtext", "here", "kableExtra", "RCurl", "psych",
+    "knitr", "RColorBrewer", "dplyr", "text2vec",
+    "textmineR", "topicmodels", "tm"
+  ),
+  install = TRUE
+)
+
+library(SemanticDistance)
+library(dplyr)
+
+jamie.theme <- theme_bw() +
+  theme(
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    legend.title = element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- if (nrow(x) > 200) 200 else nrow(x)
+
+  x[1:len, ] %>%
+    knitr::kable(digits = 2, align = 'l', booktabs = TRUE) %>%
+    kableExtra::kable_styling(fixed_thead = TRUE) %>%
+    kableExtra::kable_paper(
+      "striped",
+      full_width = TRUE,
+      html_font = "Helvetica",
+      font_size = 12
+    ) %>%
+    kableExtra::row_spec(
+      0,
+      color = "white",
+      background = "#111184",
+      font_size = 12
+    ) %>%
+    kableExtra::scroll_box(width = "700px", height = "500px") %>%
+    knitr::asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+# R package
+This analysis uses the [SemanticDistance R package](https://github.com/Reilly-ConceptsCognitionLab/SemanticDistance) from the Reilly Concepts and Cognition Lab. <br>
+
+# Step 1: Load Data
+
+```{r}
+#Getting dataset, get a peak first
+ls("package:SemanticDistance")
+
+```
+
+```{r}
+
+# Load lookup database (inside the package)
+data("Word_Pairs")
+cat("Word_Pairs dimensions:", dim(Word_Pairs), "\n")
+head(Word_Pairs)
+
+
+```
+```{r}
+
+# Load the SD15 
+data("SD15_2025_complete")
+cat("SD15 dimensions:", dim(SD15_2025_complete), "\n")
+head(SD15_2025_complete)
+
+
+```
+
+```{r sample-500k}
+# Pull all unique words that appear in Word_Pairs
+all_words <- unique(c(Word_Pairs$word1, Word_Pairs$word2))
+all_words  <- all_words[!is.na(all_words) & nchar(trimws(all_words)) > 0]
+cat("Total unique words available:", length(all_words), "\n")
+
+```
+
+```{r}
+# Randomly sample 500 unique, non-identical, deduplicated pairs
+set.seed(42)
+N <- 500
+
+# Oversample to account for losses from deduplication and identical-pair removal
+idx1 <- sample(length(all_words), N * 1.3, replace = TRUE)
+idx2 <- sample(length(all_words), N * 1.3, replace = TRUE)
+
+
+pairs_raw <- data.frame(
+  word1 = all_words[idx1],
+  word2 = all_words[idx2],
+  stringsAsFactors = FALSE
+) %>%
+  # Remove identical pairs (dog–dog)
+  filter(word1 != word2) %>%
+  # Deduplicate: treat (apple, dog) == (dog, apple)
+  rowwise() %>%
+  mutate(
+    w_a = min(word1, word2),
+    w_b = max(word1, word2)
+  ) %>%
+  ungroup() %>%
+  distinct(w_a, w_b) %>%
+  rename(word1 = w_a, word2 = w_b) %>%
+  slice_head(n = N)
+
+cat("Final unique pair count:", nrow(pairs_raw), "\n")
+head(pairs_raw)
+
+```
+
+
+# Step 2: Clean Pairs & Compute GloVe Embedding Distances
+
+```{r clean-pairs}
+# Clean using SemanticDistance — lemmatize=FALSE since words are already canonical
+pairs_clean <- clean_paired_cols(
+  dat      = pairs_raw,
+  wordcol1 = "word1",
+  wordcol2 = "word2",
+  lemmatize = FALSE
+)
+
+cat("Cleaned pair count:", nrow(pairs_clean), "\n")
+head(pairs_clean)
+```
+
+```{r embedding-dist}
+# Compute GloVe cosine distances for all 500 pairs
+
+cat("Computing GloVe embedding distances...\n")
+t0 <- Sys.time()
+
+embedding_dist <- dist_paired_cols(pairs_clean)
+
+cat("Done in", round(difftime(Sys.time(), t0, units = "mins"), 2), "min\n")
+cat("Columns returned:", colnames(embedding_dist), "\n")
+head(embedding_dist)
+```
+# Step 3: Compute SD15 Experiential Distances
+
+```{r sd15-dist}
+# Join SD15 norms onto word1 and word2 separately, then compute cosine distance
+# between the two experiential rating vectors row-by-row
+
+# Identify the word column name in SD15_2025_complete
+# SD15 feature columns — everything except the word column
+sd15_features <- colnames(SD15_2025_complete)[colnames(SD15_2025_complete) != "word"]
+cat("SD15 features:", sd15_features, "\n")
+
+
+# Join SD15 ratings onto word1, prefix feature cols "w1_"
+w1 <- pairs_clean %>%
+  left_join(SD15_2025_complete, by = c("word1" = "word")) %>%
+  rename_with(~ paste0("w1_", .), all_of(sd15_features))
+
+# Join SD15 ratings onto word2, prefix feature cols "w2_"
+w2 <- pairs_clean %>%
+  left_join(SD15_2025_complete, by = c("word2" = "word")) %>%
+  rename_with(~ paste0("w2_", .), all_of(sd15_features))
+
+# Merge — keep only pairs where BOTH words have SD15 data
+combined_sd <- w1 %>%
+  inner_join(w2, by = c("word1", "word2")) %>%
+  drop_na()
+
+cat("Pairs with complete SD15 data:", nrow(combined_sd), "\n")
+```
+
+
+
+```{r cosine-sd15}
+# Define cosine distance helper (bounded 0-2)
+# Cosine distance: 0 = identical, up to 2 = maximally distant
+cosine_dist_safe <- function(a, b) {
+  a <- as.numeric(a)
+  b <- as.numeric(b)
+  if (any(is.na(a)) || any(is.na(b))) return(NA_real_)
+  denom <- sqrt(sum(a^2)) * sqrt(sum(b^2))
+  if (denom == 0) return(NA_real_)
+  1 - (sum(a * b) / denom)
+}       # cosine similarity (-1 to 1)
+ 
+
+# Apply row-wise — may take a moment
+cat("Computing SD15 cosine distances...\n")
+t1 <- Sys.time()
+
+w1_cols <- paste0("w1_", sd15_features)
+w2_cols <- paste0("w2_", sd15_features)
+
+experiential_dist <- combined_sd %>%
+  select(word1, word2, all_of(w1_cols), all_of(w2_cols)) %>%
+  rowwise() %>%
+  mutate(
+    sd15_distance = cosine_dist_safe(
+      c_across(all_of(w1_cols)),
+      c_across(all_of(w2_cols))
+    )
+  ) %>%
+  ungroup() %>%
+  select(word1, word2, sd15_distance) %>%
+  drop_na(sd15_distance)
+
+cat("Done in", round(difftime(Sys.time(), t1, units = "mins"), 2), "min\n")
+cat("Pairs with valid SD15 distance:", nrow(experiential_dist), "\n")
+head(experiential_dist)
+```
+
+```{r merge-both}
+# Identify the GloVe distance column
+glove_col <- colnames(embedding_dist)[
+  grep("(?i)glove|embed|cosine|dist", colnames(embedding_dist))
+]
+glove_col <- glove_col[!glove_col %in% c("word1", "word2")][1]
+cat("GloVe distance column:", glove_col, "\n")
+
+# Merge GloVe + SD15 into one analysis dataframe
+all_dists <- embedding_dist %>%
+  select(word1, word2, glove_distance = CosDist_GLO) %>%
+  inner_join(experiential_dist, by = c("word1", "word2")) %>%
+  drop_na()
+
+cat("Final merged pair count:", nrow(all_dists), "\n")
+
+# Sanity check — should NOT be 1.0 if SD15 is now independent of GloVe
+cat("Sanity check correlation:",
+    round(cor(all_dists$glove_distance, all_dists$sd15_distance,
+              use = "complete.obs"), 3), "\n")
+
+head(all_dists)
+```
+
+
+# Step 4: Distributions: GloVe vs. SD15
+
+```{r summary-stats}
+# Descriptive statistics for each norm type
+summary_tbl <- all_dists %>%
+  summarise(
+    across(
+      c(glove_distance, sd15_distance),
+      list(
+        N        = ~ sum(!is.na(.)),
+        Mean     = ~ mean(., na.rm = TRUE),
+        SD       = ~ sd(., na.rm = TRUE),
+        Median   = ~ median(., na.rm = TRUE),
+        Min      = ~ min(., na.rm = TRUE),
+        Max      = ~ max(., na.rm = TRUE),
+        Skewness = ~ psych::skew(., na.rm = TRUE)
+      ),
+      .names = "{.col}__{.fn}"
+    )
+  ) %>%
+  pivot_longer(everything(),
+               names_to  = c("Metric", "Stat"),
+               names_sep = "__") %>%
+  pivot_wider(names_from = Stat, values_from = value)
+
+knitr::kable(summary_tbl, digits = 3, format = "pipe",
+             caption = "Descriptive Statistics: GloVe vs. SD15 Cosine Distances")
+```
+
+
+```{r plot-overlapping-hist, fig.width=10, fig.height=6}
+# Long format for ggplot
+dist_long <- all_dists %>%
+  pivot_longer(
+    cols      = c(glove_distance, sd15_distance),
+    names_to  = "norm_type",
+    values_to = "cosine_distance"
+  ) %>%
+  mutate(norm_type = recode(norm_type,
+    "glove_distance" = "GloVe (Embedding)",
+    "sd15_distance"  = "SD15 (Experiential)"
+  ))
+
+means_df <- dist_long %>%
+  group_by(norm_type) %>%
+  summarise(mean_dist = mean(cosine_distance, na.rm = TRUE))
+
+pal <- c("GloVe (Embedding)" = "#2C7BB6", "SD15 (Experiential)" = "#111184")
+
+
+# Overlapping density histograms
+ggplot(dist_long, aes(x = cosine_distance, fill = norm_type, colour = norm_type)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 80, alpha = 0.40, position = "identity") +
+  geom_density(linewidth = 0.9, alpha = 0) +
+  geom_vline(data = means_df,
+             aes(xintercept = mean_dist, colour = norm_type),
+             linetype = "dashed", linewidth = 0.85) +
+  scale_fill_manual(values = pal) +
+  scale_colour_manual(values = pal) +
+  labs(
+    title    = "Distribution of Cosine Distances: Embedding vs. Experiential",
+    subtitle = "Random word pairs | dashed lines = group means",
+    x        = "Cosine Distance  (0 = identical  →  2 = maximally distant)",
+    y        = "Density",
+    fill     = NULL, colour = NULL
+  ) +
+  jamie.theme +
+  theme(legend.position = "top",
+        plot.title = element_text(face = "bold", size = 13))
+```
+
+# Step 5: Correlation Between GloVe & SD15
+
+```{r correlation}
+r_p <- cor(all_dists$glove_distance, all_dists$sd15_distance,
+           method = "pearson",  use = "complete.obs")
+r_s <- cor(all_dists$glove_distance, all_dists$sd15_distance,
+           method = "spearman", use = "complete.obs")
+
+cat(sprintf("Pearson r  = %.3f\n", r_p))
+cat(sprintf("Spearman ρ = %.3f\n", r_s))
+
+```
+
+```{r scatter-hex, fig.width=9, fig.height=6}
+# Hex-bin scatter (efficient for large N)
+
+set.seed(1)
+plot_sub <- all_dists %>% slice_sample(n = min(50000, nrow(all_dists)))
+
+ggplot(plot_sub, aes(x = glove_distance, y = sd15_distance)) +
+  geom_hex(bins = 70, alpha = 0.85) +
+  scale_fill_viridis_c(option = "magma", name = "Count") +
+  geom_smooth(method = "lm", colour = "#2C7BB6",
+              linewidth = 1.1, se = TRUE) +
+  ggplot2::annotate("text",
+           x     = quantile(plot_sub$glove_distance, 0.60, na.rm = TRUE),
+           y     = quantile(plot_sub$sd15_distance,  0.92, na.rm = TRUE),
+           label = sprintf("Pearson r = %.3f\nSpearman ρ = %.3f", r_p, r_s),
+           size  = 4.5, hjust = 0, fontface = "bold", colour = "white") +
+  labs(
+    title    = "GloVe Embedding vs. SD15 Experiential Distances",
+    subtitle = "Hex bin shading by pair density",
+    x        = "GloVe Cosine Distance",
+    y        = "SD15 Experiential Distance"
+  ) +
+  jamie.theme +
+  theme(plot.title = element_text(face = "bold", size = 13))
+
+```
+
+
+```{r top-divergent, fig.width=11, fig.height=6}
+# Top 20 pairs where GloVe & SD15 disagree most
+lm_fit <- lm(sd15_distance ~ glove_distance, data = all_dists)
+all_dists$residual <- residuals(lm_fit)
+
+top_diverge <- all_dists %>%
+  arrange(desc(abs(residual))) %>%
+  slice_head(n = 20) %>%
+  select(word1, word2, glove_distance, sd15_distance, residual)
+
+knitr::kable(top_diverge, digits = 3, format = "pipe",
+             caption = "Top 20 word pairs where GloVe & SD15 distances diverge most")
+```
+
+```{r closest-pairs, fig.width=11, fig.height=7}
+# Most semantically similar pairs by each norm
+
+closest_glove <- all_dists %>%
+  arrange(glove_distance) %>% slice_head(n = 25) %>%
+  mutate(pair = paste(word1, "–", word2), norm = "GloVe", dist = glove_distance)
+
+closest_sd15 <- all_dists %>%
+  arrange(sd15_distance) %>% slice_head(n = 25) %>%
+  mutate(pair = paste(word1, "–", word2), norm = "SD15 Experiential", dist = sd15_distance)
+
+top_pairs <- bind_rows(closest_glove, closest_sd15)
+
+ggplot(top_pairs, aes(x = reorder(pair, -dist), y = dist, fill = norm)) +
+  geom_col(alpha = 0.85) +
+  coord_flip() +
+  facet_wrap(~norm, scales = "free") +
+  scale_fill_manual(values = c("GloVe" = "#2C7BB6",
+                               "SD15 Experiential" = "#111184")) +
+  labs(
+    title = "Top 25 Most Semantically Similar Pairs by Norm Type",
+    x = NULL, y = "Cosine Distance (lower = more similar)"
+  ) +
+  jamie.theme +
+  theme(legend.position = "none",
+        axis.text.y      = element_text(size = 7),
+        strip.background = element_rect(fill = "#010048"),
+        strip.text       = element_text(colour = "white", face = "bold"),
+        plot.title       = element_text(face = "bold", size = 12))
+```
+
+# What Does It All Mean?
+
+The Pearson r = 0.342 and Spearman rho = 0.346 between GloVe and SD15 distances
+suggest moderate overlap, accounting for roughly 12% of shared variance. These two
+metrics are measuring related but meaningfully different aspects of semantic similarity,
+and that gap is the whole point of this comparison.
+
+**GloVe** is purely distributional. It assigns similarity based on where a word appears
+in text, which documents, which sentences, which neighboring words. The GloVe distribution
+reflects this: mean of 0.806, SD of 0.141, range from 0.239 to 1.103, and a left skew
+of -1.0. Most random word pairs land in the mid-to-high distance range. GloVe only pulls
+words close together when they genuinely and repeatedly co-occur in similar contexts.
+The narrow SD tells me GloVe is not very sensitive to the full range of possible semantic
+relationships. It lives in a compressed slice of distance space.
+
+**SD15** is built from human perceptual and sensorimotor ratings across dimensions
+including auditory, gustatory, haptic, visual, olfactory, and interoceptive experience.
+The SD15 distribution is much wider: mean of 0.726, SD of 0.315, range from 0.035 to
+1.628, and near-zero skew (-0.039). Human experiential space has more dynamic range than
+corpus space. Words can be nearly identical in sensory profile (lobster-potato at 0.035)
+or completely alien to each other (bed-the at 1.628), and the rating system captures
+that full spread.
+
+**Why I deduplicated and removed identical pairs:** I did not want dog-dog inflating
+similarity scores, and I did not want apple-dog and dog-apple counted as separate
+observations. The sort-and-distinct approach ensures every pair appears exactly once in
+canonical order, which is important for large clean sampling.
+
+**Why cosine distance instead of cosine similarity:** Cosine similarity runs from -1 to 1,
+which is awkward to interpret. Subtracting from 1 gives a distance metric bounded from
+0 to 2, where 0 means the two word vectors are identical and 2 means maximally far apart.
+This makes the numbers more intuitive to discuss and compare across metrics.
+
+**The divergence table** shows where GloVe and SD15 disagree most. The-you has a GloVe
+distance of 0.239 but an SD15 distance of 1.503. "The" and "you" appear together constantly
+in text so GloVe marks them as close. But "the" has no sensory or perceptual profile
+whatsoever across the SD15 dimensions, while "you" carries social and interoceptive
+significance GloVe is picking up on syntactic co-occurrence, not meaning. The same pattern
+holds for bed-the (GloVe: 0.513, SD15: 1.628) and fur-the (GloVe: 0.746, SD15: 1.419).
+Function words like "the" artificially inflate GloVe similarity with nearly everything
+because they are present in virtually every document.
+
+The opposite pattern is interesting. Lobster-soda has a GloVe distance of 0.941
+but an SD15 distance of 0.115. Garlic-squid is GloVe: 0.812, SD15: 0.063. Milk-pancake
+is GloVe: 0.789, SD15: 0.072. GloVe marks these pairs as distant because they rarely
+co-occur in text. SD15 marks them as nearly identical because they share strong gustatory,
+olfactory, and haptic signatures. Lobster and soda are both consumable, mouth-relevant
+objects. Garlic and squid share intense smell and taste profiles. Milk and pancake
+activate overlapping sensorimotor representations grounded in food preparation and eating.
+None of this is recoverable from co-occurrence statistics.
+
+**The closest pairs chart** makes the same point visually. The GloVe top 25 is dominated
+by function word pairings like the-you, bed-the, and rock-water, things that share
+document context but have no experiential relationship. The SD15 top 25 is almost entirely
+concrete, sensory, food-adjacent content words: lobster-potato, garlic-squid, milk-pancake,
+butter-steak. These are words that share overlapping perceptual and motor experience
+regardless of how often they appear together in text.
+
+**The takeaway** is that GloVe captures abstract, propositional, and syntactic
+relationships in language. SD15 captures the embodied, grounded structure of meaning
+built from human sensory experience. The r = 0.342 tells me they share enough common
+signal to be measuring something real in the same direction, but they diverge enough
+that they are not interchangeable. For cognitive and psycholinguistic research where
+the goal is to model how meaning is represented in the human mind, SD15 is the more
+ecologically valid metric. Using both together gives better coverage than either alone.

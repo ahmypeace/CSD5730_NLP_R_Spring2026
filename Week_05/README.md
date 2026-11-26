@@ -125,7 +125,7 @@ Assignment_05/
 
 ## Live Report
 
-> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/Assignment5_Onebunne.html)
+> [View Rendered HTML Report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-05-professional-genie.html)
 
 ---
 

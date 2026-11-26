@@ -1,0 +1,194 @@
+---
+title: "Assignment 7: Cleaning Pipeline Cheat Sheet"
+author: "Peace Onebunne"
+date: "February 2026"
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    css: "Styles/OnebunnePro.css"
+---
+
+<div class="page-logo">
+  <img src="Images/Amy_Logo.png" alt="Logo">
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8, fig.height = 5, fig.align = "left",
+  fig.path = "Figs/", cache.path = "Cache/",
+  eval = TRUE, echo = TRUE,
+  message = FALSE, warning = FALSE
+)
+
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(textstem)
+library(kableExtra)
+library(here)
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(textstem)
+
+
+peace.theme <- ggplot2::theme_bw() +
+  ggplot2::theme(
+    axis.line = ggplot2::element_line(colour = "black"),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank()
+  )
+
+print.me <- function(x, ...) {
+  len <- min(nrow(x), 200)
+  x[1:len, , drop = FALSE] |>
+    kbl(digits = 2, align = "l", booktabs = TRUE) |>
+    kable_styling(fixed_thead = TRUE) |>
+    kable_paper("striped", full_width = TRUE, html_font = "Helvetica", font_size = 12) |>
+    row_spec(0, color = "white", background =  "#101c4b", font_size = 12) |>
+    scroll_box(width = "700px", height = "500px") |>
+    asis_output()
+}
+
+registerS3method("knit_print", "data.frame", print.me)
+
+```
+
+## Cleaning Function: peace_genie_pro
+* For this assignment, I refined my cleaning function and renamed it `peace_genie_pro`. This version standardizes text encoding, normalizes quotation marks, removes URLs and email addresses, converts all text to lowercase, strips out numbers and punctuation, and collapses excess whitespace. The aim is to generate a clean and consistent text object that supports reproducibility and ensures reliable downstream processing in Quanteda.
+
+```{r}
+
+unabomb_url <- "https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/unabomber_manifesto.txt"
+
+raw_lines <- readLines(unabomb_url, warn = FALSE, encoding = "UTF-8")
+
+raw_text <- paste(raw_lines, collapse = " ")
+
+
+
+peace_genie_pro <- function(text_input,
+                            to_lower = TRUE,
+                            fix_encoding = TRUE,
+                            normalize_quotes = TRUE,
+                            remove_urls = TRUE,
+                            remove_emails = TRUE,
+                            remove_numbers = TRUE,
+                            split_hyphens = TRUE,
+                            squash_whitespace = TRUE) {
+
+  if (length(text_input) > 1) {
+    text_input <- paste(text_input, collapse = " ")
+  }
+
+  text_input <- as.character(text_input)
+
+  if (fix_encoding) {
+    text_input <- iconv(text_input, from = "", to = "UTF-8", sub = " ")
+  }
+
+  if (normalize_quotes) {
+    text_input <- gsub("[\u2018\u2019\u02BC\u201B\uFF07]", "'", text_input)
+  }
+
+  if (to_lower) {
+    text_input <- tolower(text_input)
+  }
+
+  if (remove_urls) {
+    text_input <- gsub("https?://\\S+|www\\.\\S+", " ", text_input)
+  }
+
+  if (remove_emails) {
+    text_input <- gsub("\\b[[:alnum:]._%+-]+@[[:alnum:].-]+\\.[[:alpha:]]{2,}\\b", " ", text_input)
+  }
+
+  if (split_hyphens) {
+    text_input <- gsub("[-_]", " ", text_input)
+  }
+
+  if (remove_numbers) {
+    text_input <- gsub("[0-9]+", " ", text_input)
+  }
+
+  text_input <- gsub("[[:punct:]]+", " ", text_input)
+
+  if (squash_whitespace) {
+    text_input <- gsub("\\s+", " ", text_input)
+    text_input <- trimws(text_input)
+  }
+
+  return(text_input)
+}
+
+```
+
+## Testing the cleaning cheat code
+
+```{r}
+clean_text <- peace_genie_pro(raw_text)
+
+cat(substr(clean_text, 1, 500))
+
+```
+
+## Corpus Creation
+* The cleaned text is converted into a corpus object, which is required for processing in quanteda.
+
+```{r}
+corp_clean <- corpus(clean_text)
+
+summary(corp_clean)
+```
+
+## Tokenization
+* Tokenization breaks the text into individual units while removing common stopwords that do not contribute meaningful semantic value.
+
+```{r}
+tokens_clean <- quanteda::tokens(
+  corp_clean,
+  remove_punct = TRUE,
+  remove_numbers = TRUE
+)
+
+tokens_clean <- tokens_remove(tokens_clean, stopwords("en"))
+
+tokens_clean
+
+
+```
+
+## Lemmatization / Normalization
+* This step reduces words to their base form, improving consistency across similar terms.
+
+```{r}
+tokens_lemma <- tokens_wordstem(tokens_clean)
+
+tokens_lemma
+
+
+```
+
+## Document Feature Matrix (DFM)
+* The DFM transforms the text into a structured representation where 
+each feature corresponds to a term and its frequency.
+
+```{r}
+dfm_clean <- dfm(tokens_lemma)
+
+topfeatures(dfm_clean, 20)
+
+```
+## Visualization: Word Frequency
+* The word cloud provides a visual representation of the most frequent terms in the corpus.
+```{r}
+textplot_wordcloud(dfm_clean, max_words = 100)
+
+```
