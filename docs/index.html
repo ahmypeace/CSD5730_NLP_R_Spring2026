@@ -74,9 +74,9 @@
                     <div class="col-lg-8">
                         <h2 class="text-white mb-4">About This Course</h2>
                         <p class="text-white-50">
-                            CSD5730, Natural Language Processing for Biobehavioral and Neuroscience Applications, taught text analysis in R from the ground up.
-                            Each week added a step to one pipeline: cleaning raw text, building a corpus, counting and comparing words, and finally testing hypotheses with dictionaries and psycholinguistic norms.
-                            The cleaning function at the center of that pipeline started in Week 3 as a short base R script and grew into <code class="text-white">peace_genie_pro()</code>, which every later project reuses. The semester closed with semantic distance and a final project design for analyzing AI news across four African countries.
+                            CSD5730, Natural Language Processing for Biobehavioral and Neuroscience Applications, covered text analysis in R.
+                            The weekly assignments moved from cleaning raw text and building a corpus to counting words, testing hypotheses with dictionaries and psycholinguistic norms, and measuring semantic distance.
+                            A cleaning function first written in Week 3 was improved each week and became <code class="text-white">peace_genie_pro()</code>, which the later projects use. The course ended with a final project design for studying AI news coverage in four African countries.
                         </p>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                         <div class="featured-text">
                             <div class="project-kicker">Week 11 · Featured project</div>
                             <h4>Two Ways to Measure Meaning</h4>
-                            <p class="text-black-50 mb-0">This analysis asked whether two ways of measuring word meaning agree. GloVe embeddings judge words by the company they keep in text, while SD15 scores words on human ratings of sight, sound, taste, smell, touch, and emotion. Across 469 random word pairs, the two distances correlated at r = 0.34, sharing only about 12 percent of their variance. GloVe placed "the" and "you" close together because they appear side by side constantly, while SD15 placed lobster and soda, or garlic and squid, almost on top of each other because they share taste and smell. Corpus statistics capture how words are used and human ratings capture how they are experienced, so a full account of meaning needs both.</p>
+                            <p class="text-black-50 mb-0">This analysis compared two ways of measuring how close two words are in meaning. GloVe embeddings place words by the contexts they share in text, and SD15 places them by human ratings of sight, sound, taste, smell, touch, and emotion. Across 469 random word pairs, the two distances correlated at r = 0.34, about 12 percent shared variance. GloVe placed "the" and "you" close together because the two words appear together so often. SD15 placed lobster and soda, and garlic and squid, almost on top of each other because they share taste and smell.</p>
                             <div class="tool-list"><span class="tool-badge">SemanticDistance</span><span class="tool-badge">GloVe embeddings</span><span class="tool-badge">cosine distance</span><span class="tool-badge">dplyr joins</span><span class="tool-badge">Pearson and Spearman</span><span class="tool-badge">ggplot2</span></div>
                             <a class="report-link" href="reports/week-11-semantic-distance.html">Read the report <i class="fas fa-arrow-right"></i></a>
                         </div>
@@ -107,7 +107,7 @@
                                 <div class="project-text w-100 my-auto text-center text-lg-left">
                                     <div class="project-kicker">Week 6</div>
                                     <h4 class="text-white">Measuring Gaslighting in Text</h4>
-                                    <p class="mb-0 text-white-50">This project asked whether gaslighting shows up as a pattern in word use, or only as scattered moments of disagreement. Texts in the Gaslighting Dataset were cleaned with <code class="text-white">peace_genie_pro()</code>, which keeps apostrophes so phrases like "you didn't" and "I never said that" survive cleaning. A dictionary drawn from published gaslighting research sorted words into five categories: denial, blame, emotional invalidation, control, and doubt about memory. Denial and control language were the most frequent, followed by invalidation, while doubt about memory and blame appeared less often but consistently. The hypothesis was supported, since all five features recurred across the corpus.</p>
+                                    <p class="mb-0 text-white-50">This project asked whether gaslighting shows up as a pattern in word use, or only as scattered moments of disagreement. Texts in the Gaslighting Dataset were cleaned with <code class="text-white">peace_genie_pro()</code>, which keeps apostrophes so phrases like "you didn't" and "I never said that" survive cleaning. A dictionary drawn from published gaslighting research sorted words into five categories: denial, blame, emotional invalidation, control, and doubt about memory. Denial and control language were the most frequent, followed by invalidation. Doubt about memory and blame appeared less often but showed up throughout. The hypothesis was supported, since all five features recurred across the corpus.</p>
                                     <div class="tool-list"><span class="tool-badge">quanteda</span><span class="tool-badge">dfm_lookup()</span><span class="tool-badge">textstat_frequency()</span><span class="tool-badge">textstem</span><span class="tool-badge">ggplot2</span></div>
                                     <a class="report-link" href="reports/week-06-gaslighting.html">Read the report <i class="fas fa-arrow-right"></i></a>
                                 </div>
@@ -124,7 +124,7 @@
                                 <div class="project-text w-100 my-auto text-center text-lg-right">
                                     <div class="project-kicker">Week 5</div>
                                     <h4 class="text-white">Does the Manifesto Get Angrier?</h4>
-                                    <p class="mb-0 text-white-50">The hypothesis was that the Unabomber Manifesto's language would grow angrier, more aroused, and more negative as it went on, while staying abstract throughout. The text was split into 300-word chunks, lemmatized, and joined to the Reilly Lab psycholinguistic database to score anger, arousal, valence, and concreteness. Anger, arousal, and valence moved up and down across the chunks without building toward the end. Concreteness stayed low the whole way, which fits the manifesto's focus on systems and society. The hypothesis was partly supported.</p>
+                                    <p class="mb-0 text-white-50">The hypothesis was that the Unabomber Manifesto's language would grow angrier, more aroused, and more negative as it went on and would stay abstract throughout. The text was split into 300-word chunks, lemmatized, and joined to the Reilly Lab psycholinguistic database to score anger, arousal, valence, and concreteness. Anger, arousal, and valence moved up and down across the chunks without building toward the end. Concreteness stayed low in every chunk, in line with the manifesto's focus on systems and society. The hypothesis was partly supported.</p>
                                     <div class="tool-list"><span class="tool-badge">peace_genie_pro()</span><span class="tool-badge">textstem</span><span class="tool-badge">quanteda</span><span class="tool-badge">dplyr joins</span><span class="tool-badge">ggplot2 facets</span></div>
                                     <a class="report-link" href="reports/week-05-professional-genie.html">Read the report <i class="fas fa-arrow-right"></i></a>
                                 </div>
@@ -173,7 +173,7 @@
                         <div class="week-card">
                             <div class="week-num">Week 2</div>
                             <h4>Text Cleaning and Tokenization</h4>
-                            <p>Token and type counts before and after a first cleaning pass, which still let numbers and stray fragments through. Week 3 fixed that.</p>
+                            <p>Token and type counts before and after a first cleaning pass, which still let numbers and stray fragments through. The Week 3 cleaner removed them.</p>
                             <a class="report-link mt-0" href="reports/week-02-text-cleaning.html">Open report <i class="fas fa-arrow-right"></i></a>
                             <a class="report-link mt-0 ms-3" href="reports/week-02-cheat-sheet.html">Cheat sheet <i class="fas fa-arrow-right"></i></a>
                         </div>

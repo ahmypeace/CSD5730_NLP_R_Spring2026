@@ -8,7 +8,7 @@
 This assignment focuses on basic text preprocessing and token analysis using R.
 The objective was to import a messy text file (`sticks_messy.txt`), build a simple cleaning function, and evaluate how cleaning affects token counts.
 
-The cleaning function was designed to normalize and standardize text while removing noise such as punctuation, numeric artifacts, and malformed tokens.
+The cleaning function normalizes the text and removes noise like punctuation, numeric artifacts, and malformed tokens.
 
 ---
 

@@ -22,7 +22,7 @@ This assignment reads a messy text file (`sticks_messy.txt`) into R, cleans it w
 | Before cleaning | 427 | 264 | 0.62 |
 | After cleaning | 406 | 227 | 0.56 |
 
-This first cleaning pass lowercased the text and removed punctuation, but it kept numbers and stray fragments such as `89769hlj`. The Week 3 Cleaning Genie added steps to remove them.
+This first cleaning pass lowercased the text and removed punctuation, but it kept numbers and stray fragments like `89769hlj`. The Week 3 Cleaning Genie added steps to remove them.
 
 ## How to Run
 

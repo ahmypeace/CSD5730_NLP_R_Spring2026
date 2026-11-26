@@ -1,5 +1,5 @@
 
-# Assignment 6 — Hypothesis Construction on the Gaslighting Dataset
+# Assignment 6: Hypothesis Construction on the Gaslighting Dataset
 
 **CSD5730 | NLP in R | Spring 2026**
 **Author:** Peace Onebunne
@@ -9,7 +9,7 @@
 
 ## Overview
 
-This assignment develops a theory-driven hypothesis about linguistic patterns in the Gaslighting Dataset. Using a custom-built text cleaning pipeline, dictionary-based feature engineering, and frequency analysis, the project tests whether gaslighting can be operationalized as a structured communicative phenomenon rather than isolated emotional disagreement.
+This assignment develops a theory-driven hypothesis about linguistic patterns in the Gaslighting Dataset. Using a custom-built text cleaning pipeline, dictionary-based feature engineering, and frequency analysis, the project tests whether gaslighting can be measured as a structured pattern of communication or appears only as isolated emotional disagreement.
 
 The analysis moves from text normalization → corpus construction → tokenization → theory-based dictionary lookup → statistical frequency testing → visualization.
 
@@ -49,7 +49,7 @@ library(dplyr)
 
 ---
 
-## The Cleaning Pipeline — `peace_genie_pro()`
+## The Cleaning Pipeline (`peace_genie_pro()`)
 
 This function was developed incrementally throughout the semester and upgraded for this assignment.
 
@@ -114,7 +114,7 @@ textstat_frequency(gas_features)
 
 This converts communicative strategies into measurable variables.
 
-The goal is not sentiment scoring, but structural pattern detection.
+The goal is to detect structural patterns in the language.
 
 ---
 
@@ -137,7 +137,7 @@ A Temple-red gradient palette was used to visualize feature dominance across cat
 
 The hypothesis was supported.
 
-Gaslighting appears not as isolated emotional disagreement, but as recurring linguistic structures that redistribute responsibility and destabilize perception.
+Gaslighting shows up as recurring linguistic structures that shift responsibility and unsettle perception.
 
 ---
 
@@ -166,7 +166,7 @@ Week_06/
 
 | File                | Source                                              |
 | ------------------- | --------------------------------------------------- |
-| Gaslighting Dataset | Reilly Concepts & Cognition Lab — Public Repository |
+| Gaslighting Dataset | Reilly Concepts & Cognition Lab, Public Repository |
 
 Loaded directly via:
 
@@ -188,4 +188,4 @@ Rather than reducing gaslighting to emotion, this project treats it as structure
 
 ---
 
-*Styled with OnebunnePro.css | Submitted as part of CSD5730 — NLP in R, Spring 2026*
+*Styled with OnebunnePro.css | Submitted for CSD5730, NLP in R, Spring 2026*

@@ -1,4 +1,4 @@
-# Assignment 4 — Unabomber Manifesto: Text Cleaning & Analysis
+# Assignment 4: Unabomber Manifesto Text Cleaning and Analysis
 **CSD5730 | NLP in R | Spring 2026**  
 **Author:** Peace Onebunne  
 **Date:** February 2026
@@ -7,7 +7,7 @@
 
 ## Overview
 
-This assignment demonstrates a full NLP pipeline in R using the **Unabomber Manifesto** as source text. Starting from a raw `.txt` file pulled directly from GitHub, the workflow walks through text cleaning, corpus construction, tokenization, lexical analysis, and visualization — all using **base R** and **Quanteda**.
+This assignment demonstrates a full NLP pipeline in R using the **Unabomber Manifesto** as source text. Starting from a raw `.txt` file pulled directly from GitHub, the workflow walks through text cleaning, corpus construction, tokenization, lexical analysis, and visualization using **base R** and **Quanteda**.
 
 ---
 
@@ -50,7 +50,7 @@ A custom base R cleaning function was written for this assignment. It handles:
 - Punctuation removal
 - Whitespace normalization and trimming
 
-> No external packages were used in the cleaning step — base R only.
+> The cleaning step uses base R only, with no external packages.
 
 ---
 
@@ -70,8 +70,8 @@ The **Type-Token Ratio (TTR)** increased after cleaning, reflecting higher lexic
 
 ## Visualizations
 
-- **Lexical Dispersion Plot** — tracks where the top 5 words appear across the document, split into 300-word chunks
-- **Wordcloud** — visual overview of the 100 most dominant terms in the cleaned text
+- **Lexical Dispersion Plot**: tracks where the top 5 words appear across the document, split into 300-word chunks
+- **Wordcloud**: visual overview of the 100 most dominant terms in the cleaned text
 
 ---
 
@@ -98,4 +98,4 @@ Unabomber Manifesto sourced from:
 
 ---
 
-*Styled with OnebunnePro.css | Submitted as part of CSD5730 — NLP in R, Spring 2026*
+*Styled with OnebunnePro.css | Submitted for CSD5730, NLP in R, Spring 2026*

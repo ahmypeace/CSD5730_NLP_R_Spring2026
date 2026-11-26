@@ -5,7 +5,7 @@
 
 ## Overview
 
-This analysis compares two ways of measuring how close two words are in meaning. GloVe embeddings place words by the contexts they share in text, while SD15 places words by human ratings of sensory, motor, and emotional experience. The analysis samples 469 unique word pairs, computes a cosine distance for each pair under both measures, and compares the two.
+This analysis compares two ways of measuring how close two words are in meaning. GloVe embeddings place words by the contexts they share in text. SD15 places words by human ratings of sensory, motor, and emotional experience. The analysis samples 469 unique word pairs, computes a cosine distance for each pair under both measures, and compares the two.
 
 ## Key Results
 
@@ -15,10 +15,8 @@ This analysis compares two ways of measuring how close two words are in meaning.
 | SD15 (experiential) | 0.726 | 0.315 | 0.035 to 1.628 |
 
 - The two distances correlate at Pearson r = 0.342 (Spearman rho = 0.346), about 12 percent shared variance.
-- GloVe rates "the" and "you" as close because they appear together often, while SD15 rates them as far apart.
-- SD15 rates pairs like lobster and soda, or garlic and squid, as nearly identical because they share taste and smell, while GloVe rates them as distant.
-
-Text co-occurrence captures how words are used, while human ratings capture how they are experienced.
+- GloVe rates "the" and "you" as close because they appear together often. SD15 rates them as far apart.
+- SD15 rates lobster and soda, and garlic and squid, as nearly identical because they share taste and smell. GloVe rates them as distant.
 
 ## Files
 

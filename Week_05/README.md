@@ -1,4 +1,4 @@
-# Assignment 5 — Professional Genie & CSS Styling
+# Assignment 5: Professional Genie and CSS Styling
 **CSD5730 | NLP in R | Spring 2026**  
 **Author:** Peace Onebunne  
 **Date:** February 2026
@@ -21,7 +21,7 @@ This assignment builds directly on Assignment 4 by upgrading the text cleaning p
 | 4 | State a hypothesis about tone and emotional trajectory |
 | 5 | Score each text chunk using Dr. Jamie's lookup database |
 | 6 | Join scores and compute chunk-level averages |
-| 7 | Line plots — one per variable |
+| 7 | Line plots, one per variable |
 | 8 | Combined facet plot across all four variables |
 | 9 | Describe results in plain language |
 
@@ -41,7 +41,7 @@ library(textstem)
 
 ---
 
-## The Upgraded Genie — `peace_genie_pro()`
+## The Upgraded Genie (`peace_genie_pro()`)
 
 The cleaner was renamed and improved from Assignment 4. Key features:
 
@@ -54,7 +54,7 @@ The cleaner was renamed and improved from Assignment 4. Key features:
 - Optional apostrophe preservation via token placeholder
 - Whitespace normalization and trimming
 
-> Still base R only for the core cleaning — no external packages in the pipeline.
+> The core cleaning still uses base R only, with no external packages.
 
 ---
 
@@ -72,7 +72,7 @@ TTR rises after stopword removal, reflecting the increase in meaningful lexical 
 
 ## Hypothesis
 
-> *"The tone of the Unabomber manifesto will become more emotionally intense as the text progresses — showing higher anger, higher arousal, lower valence, and consistently low concreteness toward the later sections."*
+> *"The tone of the Unabomber manifesto will become more emotionally intense as the text progresses, showing higher anger, higher arousal, lower valence, and consistently low concreteness toward the later sections."*
 
 ---
 
@@ -85,7 +85,7 @@ Scored using **Dr. Jamie Reilly's psycholinguistic lookup database** (`lookup_Ju
 | `emo_anger_rescale` | Anger level of the language |
 | `emo_valence_b24_rescale` | Positive vs. negative emotional tone |
 | `emo_arousal_b24_rescale` | Emotional intensity / activation |
-| `sem_cnc_b24_rescale` | Concreteness — abstract vs. tangible language |
+| `sem_cnc_b24_rescale` | Concreteness (abstract vs. tangible language) |
 
 The manifesto was split into **300-word chunks**, lemmatized, joined to the lookup database, and averaged per chunk.
 
@@ -93,8 +93,8 @@ The manifesto was split into **300-word chunks**, lemmatized, joined to the look
 
 ## Visualizations
 
-- **4 individual line plots** — one per variable, tracking mean score across all text chunks
-- **1 combined facet plot** — all four variables side by side for easy comparison
+- **4 individual line plots**, one per variable, tracking mean score across all text chunks
+- **1 combined facet plot** showing all four variables together
 
 ---
 
@@ -102,10 +102,10 @@ The manifesto was split into **300-word chunks**, lemmatized, joined to the look
 
 - **Anger** fluctuates throughout but does not build linearly toward the end
 - **Arousal** varies across chunks with no consistent upward trend
-- **Valence** shifts back and forth — negativity is not concentrated in later sections
+- **Valence** shifts back and forth, and negativity does not build up in later sections
 - **Concreteness** stays consistently low across the entire text, confirming the manifesto's abstract, system-level register
 
-The hypothesis was **partially supported** — the abstract orientation held up, but the predicted linear escalation in anger, arousal, and negativity did not materialize.
+The hypothesis was **partially supported**. The text stayed abstract as predicted, but anger, arousal, and negativity did not rise steadily toward the end.
 
 ---
 
@@ -134,8 +134,8 @@ Assignment_05/
 | File | Source |
 |------|--------|
 | Unabomber Manifesto | [Reilly Lab GitHub](https://raw.githubusercontent.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/main/unabomber_manifesto.txt) |
-| Lookup Database | [lookup_Jul25.rda — Reilly Lab GitHub](https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/lookup_Jul25.rda?raw=true) |
+| Lookup Database | [lookup_Jul25.rda, Reilly Lab GitHub](https://github.com/Reilly-ConceptsCognitionLab/reillylab_publicdata/blob/main/lookup_Jul25.rda?raw=true) |
 
 ---
 
-*Styled with OnebunnePro.css | Submitted as part of CSD5730 — NLP in R, Spring 2026*
+*Styled with OnebunnePro.css | Submitted for CSD5730, NLP in R, Spring 2026*
