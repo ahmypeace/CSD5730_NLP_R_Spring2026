@@ -1,32 +1,23 @@
-# CSD5730_NLP_R_Spring2026
-R code and assignment files for the PhD course CSD5730: Natural Language Processing for Biobehavioral and Neuroscience Applications (Spring 2026).
+# Assignment 1: Text Manipulation in R
 
-# R for NLP – Assignment 1
+**CSD5730 | NLP in R | Spring 2026**
+**Author:** Amaka Peace Onebunne
 
-This repository contains coursework for the *R for Natural Language Processing* class.
+## Overview
 
-## Assignment 1: Text Manipulation in R
+The first assignment of the course. It creates the string "Mary had a little lamb", splits it so each word sits on its own row, adds a variable `Nletters` that counts the letters in each word, and styles the R Markdown output with a custom CSS file.
 
-This assignment demonstrates:
-- Creating and manipulating strings in R
-- Splitting text into individual words
-- Computing letter counts per word
-- Presenting results using R Markdown with custom CSS styling
+## Files
 
-### Files
-- `MarkdownTemplate_2025.Rmd` – Source R Markdown file  
-- `MarkdownTemplate_2025.html` – Rendered HTML output  
-- `StylesTemplates/Amy.css` – Custom stylesheet  
-- `Images/Amy_Logo.png` – Logo used in the document
+- `Assignment01_TextManipulation.Rmd`: R Markdown source
+- `Assignment01_TextManipulation.html`: rendered report
+- `StylesTemplates/Amy.css`: custom stylesheet
+- `Images/Amy_Logo.png`: logo used in the report
 
-### Preview
-Download and open `MarkdownTemplate_2025.html` locally to view the styled output.
+## How to Run
 
----
+Open `Assignment01_TextManipulation.Rmd` in RStudio or Positron and knit to HTML.
 
-## Author
+## Live Report
 
-**Amaka Peace Onebunne**  
-PhD Student, Media and Communication  
-Temple University
-
+[View the rendered report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-01-text-manipulation.html)

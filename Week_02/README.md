@@ -1,71 +1,34 @@
-# Week 02 – Text Cleaning and Tokenization (R)
+# Assignment 2: Text Cleaning and Tokenization
 
-This folder contains all files for **Week 02** of  
-**CSD5730: Natural Language Processing with R (Spring 2026)**.
+**CSD5730 | NLP in R | Spring 2026**
+**Author:** Amaka Peace Onebunne
 
-The focus of this week is text cleaning, tokenization, and basic lexical analysis using base R functions and reproducible workflows.
+## Overview
 
----
+This assignment reads a messy text file (`sticks_messy.txt`) into R, cleans it with a chained base R function, splits it into tokens, and compares token counts and the type-token ratio (TTR) before and after cleaning. An annotated cheat sheet summarizes the splitting and cleaning steps.
 
-## Contents
-Week_02/
-│
-├── Assignment_02.Rmd # Main assignment source file
-├── Assignment_02.Rproj # R project file
-├── CheatSheet_TextCleaning.Rmd # Annotated cheatsheet (required)
-├── index.Rmd # Assignment landing page
-├── about.Rmd # About page
-├── _site.yml # Site configuration
-├── style.css # Custom CSS for HTML output
-│
-├── Data/
-│ └── sticks_messy.txt # Raw text for cleaning
-│
-└── README.md
+## Files
 
+- `Assignment_02.Rmd`: R Markdown source
+- `Assignment_02.html`: rendered report
+- `CheatSheet_TextCleaning.Rmd` and `Cheatsheet_TextCleaning.html`: annotated cheat sheet
+- `style.css`: stylesheet for both documents
+- `Data/`: raw text files, including `sticks_messy.txt`
 
----
+## Key Results
 
-## Assignment Objectives
+| Version | Tokens | Types | TTR |
+|---------|--------|-------|-----|
+| Before cleaning | 427 | 264 | 0.62 |
+| After cleaning | 406 | 227 | 0.56 |
 
-This week’s assignment demonstrates how to:
-
-1. Read a raw text file into R
-2. Build a custom cleaning function using chained operations
-3. Clean and normalize messy text
-4. Tokenize text into one-word-per-row format
-5. Compute token counts before and after cleaning
-6. Compute Type-Token Ratio (TTR)
-7. Present results in clean HTML tables
-8. Document methods clearly for reproducibility
-
----
+This first cleaning pass lowercased the text and removed punctuation, but it kept numbers and stray fragments such as `89769hlj`. The Week 3 Cleaning Genie added steps to remove them.
 
 ## How to Run
 
-1. Open `Assignment_02.Rproj` in RStudio or Positron
-2. Open `Assignment_02.Rmd`
-3. Knit to HTML
-4. Open the rendered file in your browser
+Open `Assignment_02.Rmd` in RStudio or Positron and knit to HTML. The cheat sheet knits separately from `CheatSheet_TextCleaning.Rmd`.
 
-The cheatsheet can be knitted separately from:
+## Live Report
 
-CheatSheet_TextCleaning.Rmd
-
----
-
-## Notes
-
-- All code is fully annotated
-- Paths use `file.path()` for portability
-- Tables are rendered using `knitr::kable()`
-- Styling is handled via `style.css`
-- Raw data is preserved in the `Data/` folder
-
----
-
-## Author
-
-**Amaka Peace Onebunne**  
-PhD Student, Media and Communication  
-Temple University
+- [Assignment 2 report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-02-text-cleaning.html)
+- [Cheat sheet](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-02-cheat-sheet.html)

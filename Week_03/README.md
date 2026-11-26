@@ -1,6 +1,7 @@
----
+# Assignment 3: Cleaning Genie
 
-# Week 03 — Cleaning Genie (Text Preprocessing Assignment)
+**CSD5730 | NLP in R | Spring 2026**
+**Author:** Amaka Peace Onebunne
 
 ## Overview
 
@@ -13,10 +14,13 @@ The cleaning function was designed to normalize and standardize text while remov
 
 ## Files in This Folder
 
-* `Assignment_03.Rmd` — R Markdown source file
-* `Assignment_03.html` — Rendered HTML output
-* `sticks_messy.txt` — Original raw text file
-* `sticks_cleaned.txt` — Cleaned output text file
+* `Assignment_03.Rmd`: R Markdown source
+* `Assignment_03.html`: rendered report
+* `Week_3 Cheat Sheet.Rmd` and `Week_3-Cheat-Sheet.html`: cheat sheet for the week
+* `Data2/sticks_messy.txt`: original raw text file
+* `Styles/Amy.css` and `Images/Amy_Logo.png`: stylesheet and logo
+
+* `data/sticks_cleaned.txt`: cleaned output, written by `Assignment_03.Rmd` when knitted
 
 ---
 
@@ -70,3 +74,7 @@ This assignment emphasizes:
 * Structured output formatting
 
 All code and outputs are fully documented in the R Markdown file.
+
+## Live Report
+
+[View the rendered report](https://ahmypeace.github.io/CSD5730_NLP_R_Spring2026/reports/week-03-cleaning-genie.html)
