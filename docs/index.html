@@ -31,6 +31,8 @@
             .week-card h4 { font-size: 1.1rem; margin: 0.4rem 0 0.6rem; }
             .week-card p { color: rgba(0, 0, 0, 0.55); font-size: 0.95rem; margin-bottom: 0.75rem; }
             .about-section { padding-bottom: 8rem; }
+            .final-section { padding: 8rem 0; background: #fff; border-bottom: 1px solid #e9ecef; }
+            .final-section .week-card h4 { font-size: 1rem; }
         </style>
     </head>
     <body id="page-top">
@@ -46,7 +48,8 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#weeks">All Assignments</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#final">Final Project</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#weeks">Reports</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                     </ul>
                 </div>
@@ -73,7 +76,7 @@
                         <p class="text-white-50">
                             CSD5730, Natural Language Processing for Biobehavioral and Neuroscience Applications, taught text analysis in R from the ground up.
                             Each week added a step to one pipeline: cleaning raw text, building a corpus, counting and comparing words, and finally testing hypotheses with dictionaries and psycholinguistic norms.
-                            The cleaning function at the center of that pipeline started in Week 3 as a short base R script and grew into <code class="text-white">peace_genie_pro()</code>, which every later project reuses.
+                            The cleaning function at the center of that pipeline started in Week 3 as a short base R script and grew into <code class="text-white">peace_genie_pro()</code>, which every later project reuses. The semester closed with semantic distance and a final project design for analyzing AI news across four African countries.
                         </p>
                     </div>
                 </div>
@@ -84,24 +87,41 @@
             <div class="container px-4 px-lg-5">
                 <!-- Featured Project Row-->
                 <div class="row gx-0 mb-4 mb-lg-5 align-items-center">
-                    <div class="col-xl-8 col-lg-7"><img class="img-fluid mb-3 mb-lg-0" src="assets/img/gaslighting.png" alt="Bar chart of gaslighting language features by frequency" /></div>
+                    <div class="col-xl-8 col-lg-7"><img class="img-fluid mb-3 mb-lg-0" src="assets/img/semantic-distance.png" alt="Overlapping density plots of GloVe and SD15 cosine distances for random word pairs" /></div>
                     <div class="col-xl-4 col-lg-5">
                         <div class="featured-text">
-                            <div class="project-kicker">Week 6 · Featured project</div>
-                            <h4>Measuring Gaslighting in Text</h4>
-                            <p class="text-black-50 mb-0">This project asked whether gaslighting shows up as a pattern in word use, or only as scattered moments of disagreement. Texts in the Gaslighting Dataset were cleaned with <code>peace_genie_pro()</code>, which keeps apostrophes so phrases like "you didn't" and "I never said that" survive cleaning. A dictionary drawn from published gaslighting research sorted words into five categories: denial, blame, emotional invalidation, control, and doubt about memory. Denial and control language were the most frequent, followed by invalidation, while doubt about memory and blame appeared less often but consistently. The hypothesis was supported, since all five features recurred across the corpus.</p>
-                            <div class="tool-list"><span class="tool-badge">quanteda</span><span class="tool-badge">dfm_lookup()</span><span class="tool-badge">textstat_frequency()</span><span class="tool-badge">textstem</span><span class="tool-badge">ggplot2</span></div>
-                            <a class="report-link" href="reports/week-06-gaslighting.html">Read the report <i class="fas fa-arrow-right"></i></a>
+                            <div class="project-kicker">Week 11 · Featured project</div>
+                            <h4>Two Ways to Measure Meaning</h4>
+                            <p class="text-black-50 mb-0">This analysis asked whether two ways of measuring word meaning agree. GloVe embeddings judge words by the company they keep in text, while SD15 scores words on human ratings of sight, sound, taste, smell, touch, and emotion. Across 469 random word pairs, the two distances correlated at r = 0.34, sharing only about 12 percent of their variance. GloVe placed "the" and "you" close together because they appear side by side constantly, while SD15 placed lobster and soda, or garlic and squid, almost on top of each other because they share taste and smell. Corpus statistics capture how words are used and human ratings capture how they are experienced, so a full account of meaning needs both.</p>
+                            <div class="tool-list"><span class="tool-badge">SemanticDistance</span><span class="tool-badge">GloVe embeddings</span><span class="tool-badge">cosine distance</span><span class="tool-badge">dplyr joins</span><span class="tool-badge">Pearson and Spearman</span><span class="tool-badge">ggplot2</span></div>
+                            <a class="report-link" href="reports/week-11-semantic-distance.html">Read the report <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
                 <!-- Project One Row-->
                 <div class="row gx-0 mb-5 mb-lg-0 justify-content-center">
-                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/manifesto-emotion.png" alt="Four line plots of anger, arousal, valence, and concreteness across the Unabomber Manifesto" /></div>
+                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/gaslighting.png" alt="Bar chart of gaslighting language features by frequency" /></div>
                     <div class="col-lg-6">
                         <div class="bg-black text-center h-100 project">
                             <div class="d-flex h-100">
                                 <div class="project-text w-100 my-auto text-center text-lg-left">
+                                    <div class="project-kicker">Week 6</div>
+                                    <h4 class="text-white">Measuring Gaslighting in Text</h4>
+                                    <p class="mb-0 text-white-50">This project asked whether gaslighting shows up as a pattern in word use, or only as scattered moments of disagreement. Texts in the Gaslighting Dataset were cleaned with <code class="text-white">peace_genie_pro()</code>, which keeps apostrophes so phrases like "you didn't" and "I never said that" survive cleaning. A dictionary drawn from published gaslighting research sorted words into five categories: denial, blame, emotional invalidation, control, and doubt about memory. Denial and control language were the most frequent, followed by invalidation, while doubt about memory and blame appeared less often but consistently. The hypothesis was supported, since all five features recurred across the corpus.</p>
+                                    <div class="tool-list"><span class="tool-badge">quanteda</span><span class="tool-badge">dfm_lookup()</span><span class="tool-badge">textstat_frequency()</span><span class="tool-badge">textstem</span><span class="tool-badge">ggplot2</span></div>
+                                    <a class="report-link" href="reports/week-06-gaslighting.html">Read the report <i class="fas fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project Two Row-->
+                <div class="row gx-0 justify-content-center">
+                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/manifesto-emotion.png" alt="Four line plots of anger, arousal, valence, and concreteness across the Unabomber Manifesto" /></div>
+                    <div class="col-lg-6 order-lg-first">
+                        <div class="bg-black text-center h-100 project">
+                            <div class="d-flex h-100">
+                                <div class="project-text w-100 my-auto text-center text-lg-right">
                                     <div class="project-kicker">Week 5</div>
                                     <h4 class="text-white">Does the Manifesto Get Angrier?</h4>
                                     <p class="mb-0 text-white-50">The hypothesis was that the Unabomber Manifesto's language would grow angrier, more aroused, and more negative as it went on, while staying abstract throughout. The text was split into 300-word chunks, lemmatized, and joined to the Reilly Lab psycholinguistic database to score anger, arousal, valence, and concreteness. Anger, arousal, and valence moved up and down across the chunks without building toward the end. Concreteness stayed low the whole way, which fits the manifesto's focus on systems and society. The hypothesis was partly supported.</p>
@@ -112,22 +132,24 @@
                         </div>
                     </div>
                 </div>
-                <!-- Project Two Row-->
-                <div class="row gx-0 justify-content-center">
-                    <div class="col-lg-6"><img class="img-fluid project-img" src="assets/img/dispersion.png" alt="Lexical dispersion plot of the top five words in the Unabomber Manifesto" /></div>
-                    <div class="col-lg-6 order-lg-first">
-                        <div class="bg-black text-center h-100 project">
-                            <div class="d-flex h-100">
-                                <div class="project-text w-100 my-auto text-center text-lg-right">
-                                    <div class="project-kicker">Week 4</div>
-                                    <h4 class="text-white">From Raw Text to a Clean Corpus</h4>
-                                    <p class="mb-0 text-white-50">This assignment built a full cleaning and analysis pipeline for the Unabomber Manifesto, starting from a raw text file on GitHub. A base R cleaning function lowercased the text and removed numbers, punctuation, and extra spaces before it became a quanteda corpus. Cleaning and removing stopwords cut the text from 34,085 tokens to 17,891, and the type-token ratio rose from 0.13 to 0.22. The most frequent words after cleaning were society, system, people, power, and one. A lexical dispersion plot then showed where those words fall across the document.</p>
-                                    <div class="tool-list"><span class="tool-badge">base R</span><span class="tool-badge">quanteda corpus</span><span class="tool-badge">tokens and dfm</span><span class="tool-badge">dispersion plot</span><span class="tool-badge">wordcloud</span></div>
-                                    <a class="report-link" href="reports/week-04-unabomber-pipeline.html">Read the report <i class="fas fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+        </section>
+        <!-- Final project-->
+        <section class="final-section" id="final">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-lg-9 text-center">
+                        <div class="project-kicker">Final project · Research design</div>
+                        <h2 class="mb-4">Same AI, Different Story</h2>
+                        <p class="lead mb-4">A computational framing analysis of AI coverage across African news media</p>
+                        <p class="text-black-50 text-start">Research on how news media frame artificial intelligence has covered the United States, Europe, and Asia, but African outlets are largely missing from it. This project asks how African news outlets frame AI and how that framing differs across Nigeria, Kenya, South Africa, and Egypt. The corpus covers English-language AI stories from 2022 to 2025 in 12 outlets, the three most visited news sites in each country. The design follows Nguyen and Hekman's (2022) study of Western coverage, so the African results can be compared directly with that baseline.</p>
                     </div>
+                </div>
+                <div class="row gx-4 gy-4 mt-2">
+                    <div class="col-md-6 col-lg-3"><div class="week-card"><div class="week-num">Frames</div><h4>TF-IDF and k-means</h4><p>Clusters of articles labeled as emphasis frames and mapped to the 14-frame Western taxonomy.</p></div></div>
+                    <div class="col-md-6 col-lg-3"><div class="week-card"><div class="week-num">Data risks</div><h4>Dictionary method</h4><p>Signal terms for bias, surveillance, disinformation, and cybercrime, with Africa-specific additions.</p></div></div>
+                    <div class="col-md-6 col-lg-3"><div class="week-card"><div class="week-num">Actors</div><h4>Named entity recognition</h4><p>The share of African versus foreign actors quoted and centered in each outlet's AI stories.</p></div></div>
+                    <div class="col-md-6 col-lg-3"><div class="week-card"><div class="week-num">Sentiment</div><h4>Latent Semantic Scaling</h4><p>Monthly sentiment by country from 2022 to 2025, set against the declining Western trend.</p></div></div>
                 </div>
             </div>
         </section>
@@ -135,27 +157,10 @@
         <section class="weeks-section" id="weeks">
             <div class="container px-4 px-lg-5">
                 <div class="text-center mb-5">
-                    <h2 class="text-uppercase mb-3">All Assignments</h2>
-                    <p class="text-black-50 mx-auto" style="max-width: 40rem;">Every weekly report from the course, rendered from R Markdown.</p>
+                    <h2 class="text-uppercase mb-3">Reports</h2>
+                    <p class="text-black-50 mx-auto" style="max-width: 40rem;">The full reports behind the projects, rendered from R Markdown.</p>
                 </div>
                 <div class="row gx-4 gy-4">
-                    <div class="col-md-6 col-lg-4">
-                        <div class="week-card">
-                            <div class="week-num">Week 1</div>
-                            <h4>Text Manipulation in R</h4>
-                            <p>Creating strings, splitting text into words, and counting letters per word.</p>
-                            <a class="report-link mt-0" href="reports/week-01-text-manipulation.html">Open report <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="week-card">
-                            <div class="week-num">Week 2</div>
-                            <h4>Text Cleaning and Tokenization</h4>
-                            <p>Cleaning and tokenizing text with base R, plus an annotated cheat sheet.</p>
-                            <a class="report-link mt-0" href="reports/week-02-text-cleaning.html">Open report <i class="fas fa-arrow-right"></i></a>
-                            <a class="report-link mt-0 ms-3" href="reports/week-02-cheatsheet.html">Cheat sheet <i class="fas fa-arrow-right"></i></a>
-                        </div>
-                    </div>
                     <div class="col-md-6 col-lg-4">
                         <div class="week-card">
                             <div class="week-num">Week 3</div>
@@ -168,7 +173,7 @@
                         <div class="week-card">
                             <div class="week-num">Week 4</div>
                             <h4>Unabomber Manifesto Pipeline</h4>
-                            <p>Corpus building, lexical comparison, a dispersion plot, and a wordcloud.</p>
+                            <p>Corpus building, token and type counts before and after cleaning, a dispersion plot, and a wordcloud.</p>
                             <a class="report-link mt-0" href="reports/week-04-unabomber-pipeline.html">Open report <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
@@ -186,6 +191,30 @@
                             <h4>Gaslighting Hypothesis</h4>
                             <p>A theory-driven dictionary to test for patterned gaslighting language.</p>
                             <a class="report-link mt-0" href="reports/week-06-gaslighting.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Genie Contest</div>
+                            <h4>peace_genie_pro_max()</h4>
+                            <p>A full cleaning function with contraction expansion, Roman numeral handling, and optional lemmatization.</p>
+                            <a class="report-link mt-0" href="reports/genie-contest.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 10</div>
+                            <h4>Cleaning Pipeline Cheat Sheet</h4>
+                            <p>The whole workflow in one place: cleaning, corpus, tokens, lemmas, document-feature matrix, and plots.</p>
+                            <a class="report-link mt-0" href="reports/week-10-pipeline-cheat-sheet.html">Open report <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="week-card">
+                            <div class="week-num">Week 11</div>
+                            <h4>Semantic Distance</h4>
+                            <p>GloVe embedding distances compared with SD15 human experiential ratings across 469 word pairs.</p>
+                            <a class="report-link mt-0" href="reports/week-11-semantic-distance.html">Open report <i class="fas fa-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>
